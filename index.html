@@ -1,0 +1,2164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Fortis Meals">
+<meta name="theme-color" content="#090807">
+<link rel="manifest" href="data:application/json,{%22name%22:%22Fortis+Meals%22,%22short_name%22:%22Fortis+Meals%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22background_color%22:%22%23090807%22,%22theme_color%22:%22%23090807%22}">
+<title>Fortis Meals</title>
+<style>
+/* ── RESET ─────────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+/* ── TOKENS ─────────────────────────────────────────────── */
+:root{
+  --bg:#F5F2EC;
+  --white:#FFFFFF;
+  --border:#E2DDD5;
+  --am:#3D6B22;
+  --t1:#1A1510;
+  --t2:#5A5040;
+  --t3:#9A9080;
+  --chip-bg:rgba(61,107,34,0.09);
+  --chip-border:rgba(61,107,34,0.22);
+}
+
+/* ── BASE ─────────────────────────────────────────────── */
+html,body{
+  height:100%;background:var(--bg);color:var(--t1);
+  font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;overscroll-behavior:none;
+}
+body{display:flex;flex-direction:column;overflow:hidden;}
+
+/* ── HEADER ─────────────────────────────────────────────── */
+.hdr{
+  flex-shrink:0;position:relative;z-index:30;
+  padding:16px 18px 14px;
+  padding-top:max(16px, calc(env(safe-area-inset-top) + 12px));
+  background:var(--white);
+  border-bottom:1px solid var(--border);
+}
+.hdr-i{display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.hdr-b{display:flex;align-items:center;gap:12px;flex:1;min-width:0;}
+.hdr-mark{width:36px;height:36px;flex-shrink:0;color:var(--am);display:flex;align-items:center;justify-content:center;}
+.hdr-mark svg{width:30px;height:30px;}
+.hdr-nm{font-size:19px;font-weight:800;letter-spacing:-0.02em;color:var(--t1);}
+.hdr-sb{font-size:10px;color:var(--t3);margin-top:1px;}
+.hdr-txt{min-width:0;}
+.seg{display:flex;background:#EDE9E0;border-radius:8px;padding:2px;}
+.seg-b{padding:5px 10px;border-radius:6px;font-size:11px;font-weight:700;border:none;cursor:pointer;background:transparent;color:var(--t3);}
+.seg-b.on{background:var(--white);color:var(--am);box-shadow:0 1px 3px rgba(0,0,0,0.12);}
+
+/* ── TAB BAR ─────────────────────────────────────────────── */
+.tabs-wrap{
+  flex-shrink:0;
+  padding:6px 14px;
+  padding-bottom:max(10px, calc(env(safe-area-inset-bottom) + 6px));
+}
+.tabs{
+  background:var(--white);
+  border-radius:24px;
+  border:1px solid var(--border);
+  box-shadow:0 2px 10px rgba(0,0,0,0.08);
+  display:flex;
+  padding:4px;
+}
+.tab{
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;
+  padding:7px 4px;border-radius:18px;cursor:pointer;
+  -webkit-tap-highlight-color:transparent;transition:all 0.15s;
+}
+.tab.on{background:rgba(61,107,34,0.10);border:0.5px solid rgba(61,107,34,0.20);}
+.tab-ic{width:20px;height:20px;color:var(--t3);transition:color 0.15s;}
+.tab.on .tab-ic{color:var(--am);}
+.tab-lb{font-size:9px;font-weight:700;color:var(--t3);transition:color 0.15s;}
+.tab.on .tab-lb{color:var(--am);}
+.tab:active{transform:scale(0.92);}
+
+/* ── SCROLL AREA ─────────────────────────────────────────── */
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 14px 6px;}
+.sec-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.sec-title{font-size:22px;font-weight:800;letter-spacing:-0.03em;color:var(--t1);}
+.sec-ct{
+  font-size:11px;font-weight:700;color:var(--t3);
+  background:var(--white);border:1px solid var(--border);
+  padding:4px 10px;border-radius:20px;
+}
+
+/* ── CARD GRID ─────────────────────────────────────────── */
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+
+/* ── MEAL CARD ─────────────────────────────────────────── */
+.card{
+  border-radius:12px;overflow:hidden;
+  background:var(--white);
+  border:1px solid var(--border);
+  box-shadow:0 1px 4px rgba(0,0,0,0.06);
+  cursor:pointer;-webkit-tap-highlight-color:transparent;
+  transition:transform 0.12s;
+}
+.card:active{transform:scale(0.97);}
+.c-aurora{display:none;}
+.c-glass{position:relative;}
+.c-hero{
+  height:76px;
+  background:linear-gradient(150deg,#C8D4BE,#8EA880);
+  display:flex;align-items:center;justify-content:center;
+}
+.c-icon{width:38px;height:38px;color:rgba(25,46,14,0.72);}
+.c-icon svg{width:100%;height:100%;}
+.c-body{padding:10px 12px 12px;}
+.c-cat{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:0.10em;color:var(--t3);margin-bottom:5px;}
+.mbar{height:1.5px;background:rgba(61,107,34,0.14);border-radius:1px;margin-bottom:8px;}
+.c-nm{font-size:13px;font-weight:700;color:var(--t1);line-height:1.3;margin-bottom:7px;}
+.c-chips{display:flex;gap:4px;flex-wrap:wrap;}
+.chip{font-size:9px;font-weight:600;padding:2px 7px;border-radius:20px;background:var(--chip-bg);color:var(--am);border:0.5px solid var(--chip-border);}
+.c-tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px;}
+.ctag{font-size:8.5px;font-weight:500;padding:2px 6px;border-radius:20px;background:#EDE9E0;color:var(--t3);}
+
+/* ── MEAL MODAL ─────────────────────────────────────────── */
+.ov{
+  position:fixed;inset:0;z-index:60;
+  background:rgba(0,0,0,0.40);
+  display:flex;align-items:flex-end;
+  opacity:0;pointer-events:none;transition:opacity 0.20s;
+}
+.ov.on{opacity:1;pointer-events:all;}
+.modal{
+  width:100%;max-height:94vh;display:flex;flex-direction:column;
+  background:var(--white);
+  border-radius:24px 24px 0 0;
+  border-top:1px solid var(--border);
+  box-shadow:0 -2px 20px rgba(0,0,0,0.10);
+  transform:translateY(32px);
+  transition:transform 0.30s cubic-bezier(0.32,0.72,0,1);
+}
+.ov.on .modal{transform:translateY(0);}
+.m-hnd{width:36px;height:4px;border-radius:2px;background:var(--border);margin:10px auto 0;flex-shrink:0;}
+.m-sc{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+
+/* Modal hero */
+.m-hero{
+  height:180px;margin:12px 14px;border-radius:16px;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(150deg,#C8D4BE,#7A9A68);
+  position:relative;
+}
+.m-hero-bg{position:absolute;inset:0;}
+.m-hero-glass{position:absolute;inset:0;background:rgba(0,0,0,0.12);}
+.m-hero-icon{position:relative;z-index:2;width:90px;height:90px;color:rgba(255,255,255,0.90);}
+.m-hero-icon svg{width:100%;height:100%;}
+.m-close{
+  position:absolute;top:10px;right:10px;z-index:5;
+  width:28px;height:28px;border-radius:50%;
+  background:rgba(0,0,0,0.20);border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;font-size:13px;font-weight:600;
+}
+.m-hero-info{
+  position:absolute;bottom:0;left:0;right:0;z-index:3;
+  padding:10px 14px;
+  background:linear-gradient(transparent,rgba(0,0,0,0.55));
+  border-radius:0 0 16px 16px;
+}
+.m-hcat{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.10em;color:rgba(255,255,255,0.70);margin-bottom:2px;}
+.m-hname{font-size:17px;font-weight:800;color:#fff;letter-spacing:-0.02em;line-height:1.2;}
+
+/* Modal macros */
+.m-macs{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;padding:10px 14px 0;}
+.mmac{background:#F5F2EC;border-radius:10px;border:1px solid var(--border);padding:8px 4px;text-align:center;}
+.mmac-v{font-size:13px;font-weight:800;letter-spacing:-0.02em;}
+.mmac-l{font-size:7.5px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:0.06em;margin-top:2px;}
+.mac-k .mmac-v{color:var(--am);}
+.mac-p .mmac-v{color:#2E7848;}
+.mac-c .mmac-v{color:#1A5499;}
+.mac-fi .mmac-v{color:#6B4CAA;}
+.mac-fa .mmac-v{color:#994422;}
+
+/* People control */
+.m-pp{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  margin:10px 14px 0;padding:12px 14px;
+  background:#F5F2EC;border-radius:12px;border:1px solid var(--border);
+}
+.m-pp-lbl-main{font-size:13px;font-weight:600;color:var(--t1);}
+.m-pp-lbl-sub{font-size:10px;color:var(--t3);margin-top:2px;}
+.stepper{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.pp-btn{
+  width:30px;height:30px;border-radius:50%;background:var(--white);
+  border:1px solid var(--border);color:var(--t1);
+  font-size:18px;font-weight:300;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  -webkit-tap-highlight-color:transparent;transition:all 0.12s;
+}
+.pp-btn:active{background:var(--am);color:#fff;border-color:var(--am);}
+.pp-val{min-width:32px;text-align:center;font-size:20px;font-weight:800;color:var(--am);}
+.pp-val.bump{animation:bump 0.2s ease;}
+@keyframes bump{0%{transform:scale(0.78);opacity:0.4}55%{transform:scale(1.12)}100%{transform:scale(1);opacity:1}}
+
+/* Sections */
+.sh{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.10em;color:var(--t3);padding:14px 14px 6px;}
+.sh-note{font-size:11px;color:var(--t3);padding:0 14px 8px;line-height:1.5;}
+.leg{display:flex;gap:10px;flex-wrap:wrap;padding:6px 14px 0;}
+.leg-i{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--t3);}
+.leg-d{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+
+/* Ingredients */
+.ing-list{display:flex;flex-direction:column;gap:2px;padding:0 14px;}
+.ing-r{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:10px;
+  padding:9px 12px;background:#FAFAF8;border-radius:10px;border:1px solid var(--border);
+}
+.ing-n{font-size:12.5px;color:var(--t1);font-weight:500;flex:1;min-width:0;}
+.ing-w{font-size:9.5px;color:var(--t3);margin-top:2px;}
+.ing-a{font-size:13px;color:var(--am);font-weight:800;flex-shrink:0;white-space:nowrap;}
+
+/* Steps */
+.steps-list{display:flex;flex-direction:column;gap:6px;padding:0 14px;}
+.step-r{
+  display:flex;gap:11px;padding:11px 12px;
+  background:#FAFAF8;border-radius:10px;border:1px solid var(--border);
+}
+.step-n{
+  width:22px;height:22px;border-radius:50%;flex-shrink:0;margin-top:1px;
+  background:var(--am);color:#fff;
+  font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;
+}
+.step-t{font-size:12.5px;font-weight:700;color:var(--t1);margin-bottom:2px;}
+.step-x{font-size:12px;color:var(--t2);line-height:1.6;}
+
+/* Notes */
+.m-notes{margin:12px 14px 0;padding:11px 13px;background:#EDF3E8;border:1px solid rgba(61,107,34,0.20);border-radius:10px;font-size:11.5px;color:var(--t2);line-height:1.65;}
+
+/* Shops */
+.shops{display:flex;gap:6px;flex-wrap:wrap;padding:0 14px;}
+.shop{font-size:10px;font-weight:600;padding:4px 10px;border-radius:20px;background:#EDE9E0;border:1px solid var(--border);color:var(--t3);}
+.m-sp{height:28px;}
+
+/* ── PLAN SCREEN ─────────────────────────────────────────── */
+.plan-scr{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 14px 6px;flex-direction:column;gap:10px;}
+#planSlots{display:flex;flex-direction:column;gap:10px;flex:1;}
+.gen-btn{
+  flex-shrink:0;margin:6px 0;padding:15px;border-radius:14px;
+  background:var(--am);border:none;color:#fff;
+  font-size:14px;font-weight:800;cursor:pointer;
+  box-shadow:0 2px 10px rgba(61,107,34,0.22);
+  -webkit-tap-highlight-color:transparent;transition:transform 0.12s;
+}
+.gen-btn:active{transform:scale(0.97);}
+.plan-slot{background:var(--white);border-radius:12px;border:1px solid var(--border);overflow:hidden;}
+.slot-head{display:flex;align-items:center;gap:10px;padding:14px 16px;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+.slot-icon-wrap{
+  width:44px;height:44px;border-radius:10px;flex-shrink:0;
+  background:linear-gradient(150deg,#C8D4BE,#8EA880);
+  display:flex;align-items:center;justify-content:center;
+  color:rgba(25,46,14,0.80);
+}
+.slot-icon-wrap svg{width:26px;height:26px;}
+.slot-plus{background:#EDE9E0;border:1.5px dashed var(--am);color:var(--am);}
+.slot-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.10em;color:var(--t3);}
+.slot-name{font-size:14px;font-weight:700;color:var(--t1);margin-top:2px;letter-spacing:-0.01em;}
+.slot-meta{font-size:10px;color:var(--t3);margin-top:2px;}
+.slot-empty-main{font-size:14px;font-weight:600;color:var(--t2);margin-top:2px;}
+.slot-empty-sub{font-size:10px;color:var(--t3);margin-top:2px;}
+.slot-chev{color:var(--t3);font-size:18px;flex-shrink:0;margin-left:auto;}
+.slot-people{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 16px;border-top:1px solid var(--border);background:#FAFAF8;
+}
+.slot-pp-lbl{font-size:12px;font-weight:600;color:var(--t1);}
+.slot-pp-sub{font-size:10px;color:var(--t3);margin-top:2px;}
+.slot-stepper{display:flex;align-items:center;gap:8px;}
+.sp-btn{
+  width:28px;height:28px;border-radius:50%;background:var(--white);
+  border:1px solid var(--border);color:var(--t1);font-size:16px;font-weight:300;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  -webkit-tap-highlight-color:transparent;transition:all 0.12s;
+}
+.sp-btn:active{background:var(--am);color:#fff;border-color:var(--am);}
+.sp-val{min-width:26px;text-align:center;font-size:16px;font-weight:800;color:var(--am);}
+.slot-clear{
+  padding:4px 10px;border-radius:20px;font-size:10px;font-weight:700;
+  background:transparent;border:1px solid var(--border);color:var(--t3);cursor:pointer;
+}
+
+/* ── PICKER ─────────────────────────────────────────────── */
+.picker-ov,.list-ov{
+  position:fixed;inset:0;z-index:70;
+  background:rgba(0,0,0,0.40);
+  display:flex;align-items:flex-end;
+  opacity:0;pointer-events:none;transition:opacity 0.20s;
+}
+.picker-ov.on,.list-ov.on{opacity:1;pointer-events:all;}
+.picker-sheet,.list-sheet{
+  width:100%;max-height:80vh;display:flex;flex-direction:column;
+  background:var(--white);border-radius:24px 24px 0 0;
+  border-top:1px solid var(--border);
+  box-shadow:0 -2px 20px rgba(0,0,0,0.10);
+  transform:translateY(32px);
+  transition:transform 0.30s cubic-bezier(0.32,0.72,0,1);
+}
+.picker-ov.on .picker-sheet,.list-ov.on .list-sheet{transform:translateY(0);}
+.picker-head{padding:14px 16px 10px;font-size:16px;font-weight:800;color:var(--t1);flex-shrink:0;}
+.picker-grid{
+  flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  padding:0 12px calc(env(safe-area-inset-bottom) + 16px);
+  display:grid;grid-template-columns:repeat(2,1fr);gap:8px;
+}
+.pk-card{
+  background:#FAFAF8;border-radius:10px;border:1px solid var(--border);
+  padding:10px;cursor:pointer;-webkit-tap-highlight-color:transparent;
+  transition:all 0.12s;display:flex;align-items:center;gap:8px;
+}
+.pk-card:active{transform:scale(0.96);}
+.pk-card.selected{background:#EDF3E8;border-color:rgba(61,107,34,0.35);}
+.pk-icon{width:34px;height:34px;flex-shrink:0;color:rgba(25,46,14,0.72);}
+.pk-icon svg{width:100%;height:100%;}
+.pk-nm{font-size:11.5px;font-weight:600;color:var(--t1);line-height:1.3;}
+.pk-kcal{font-size:9.5px;color:var(--t3);margin-top:2px;}
+
+/* ── SHOPPING LIST ──────────────────────────────────────── */
+.list-top{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 16px 10px;flex-shrink:0;
+}
+.list-title{font-size:18px;font-weight:800;color:var(--t1);}
+.list-copy{
+  padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700;
+  background:var(--chip-bg);border:1px solid var(--chip-border);color:var(--am);cursor:pointer;
+}
+.list-copy.done{background:var(--am);color:#fff;border-color:var(--am);}
+.list-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 14px calc(env(safe-area-inset-bottom) + 20px);}
+.list-meal-head{
+  font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.10em;
+  color:var(--t3);padding:14px 0 6px;display:flex;align-items:center;gap:8px;
+}
+.list-meal-head::after{content:'';flex:1;height:1px;background:var(--border);}
+.list-item-row{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:10px;
+  padding:8px 12px;background:#FAFAF8;border-radius:8px;margin-bottom:2px;
+  border:1px solid var(--border);
+}
+.li-name{font-size:12.5px;color:var(--t1);font-weight:500;flex:1;min-width:0;}
+.li-where{font-size:9.5px;color:var(--t3);margin-top:2px;}
+.li-amt{font-size:13px;color:var(--am);font-weight:800;flex-shrink:0;}
+.list-notice{font-size:11px;color:var(--t3);padding:10px 0;text-align:center;}
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<header class="hdr">
+  <div class="hdr-i">
+    <div class="hdr-b">
+      <div class="hdr-mark">
+        <!-- Clean fork mark: three tines + handle -->
+        <svg viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <line x1="9" y1="4" x2="9" y2="13" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+          <line x1="17" y1="4" x2="17" y2="13" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+          <line x1="25" y1="4" x2="25" y2="13" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+          <path d="M9 13 Q17 17.5 25 13" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+          <line x1="17" y1="17" x2="17" y2="30" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="hdr-txt">
+        <div class="hdr-nm">Meal Prep</div>
+        <div class="hdr-sb">High protein · high fibre · calorie deficit</div>
+      </div>
+    </div>
+    <div class="seg">
+      <button class="seg-b on" onclick="setUnit('metric')">Metric</button>
+      <button class="seg-b" onclick="setUnit('imperial')">Imperial</button>
+    </div>
+  </div>
+</header>
+<div class="scroll">
+  <div class="sec-h">
+    <div class="sec-title" id="secTitle">All meals</div>
+    <div class="sec-ct" id="secCt">0 meals</div>
+  </div>
+  <div class="grid" id="grid"></div>
+</div>
+<!-- ── PLAN SCREEN (between scroll and tabs) ─────────────────────── -->
+<div class="plan-scr" id="planScr" style="display:none;flex-direction:column">
+  <div class="plan-slots" id="planSlots"></div>
+  <button class="gen-btn" id="genBtn" onclick="openList()">Generate shopping list</button>
+</div>
+
+<div class="tabs-wrap"><nav class="tabs">
+  <div class="tab on" data-c="all" onclick="setCat('all')">
+    <svg class="tab-ic" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="2.5" y="2.5" width="7" height="7" rx="2" stroke="currentColor" stroke-width="1.6"/>
+      <rect x="12.5" y="2.5" width="7" height="7" rx="2" stroke="currentColor" stroke-width="1.6"/>
+      <rect x="2.5" y="12.5" width="7" height="7" rx="2" stroke="currentColor" stroke-width="1.6"/>
+      <rect x="12.5" y="12.5" width="7" height="7" rx="2" stroke="currentColor" stroke-width="1.6"/>
+    </svg>
+    <div class="tab-lb">All</div>
+  </div>
+  <div class="tab" data-c="breakfast" onclick="setCat('breakfast')">
+    <svg class="tab-ic" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Horizon line -->
+      <line x1="2" y1="15" x2="20" y2="15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+      <!-- Half-circle sun above horizon -->
+      <path d="M5.5 15 A5.5 5.5 0 0 1 16.5 15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+      <!-- Rays -->
+      <line x1="11" y1="3" x2="11" y2="5.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+      <line x1="4.2" y1="6.2" x2="5.9" y2="7.9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+      <line x1="17.8" y1="6.2" x2="16.1" y2="7.9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+      <line x1="2.5" y1="12" x2="4.5" y2="12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+      <line x1="19.5" y1="12" x2="17.5" y2="12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+    </svg>
+    <div class="tab-lb">Breakfast</div>
+  </div>
+  <div class="tab" data-c="lunch" onclick="setCat('lunch')">
+    <svg class="tab-ic" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Bowl shape -->
+      <path d="M3.5 10 Q3.5 17 11 17 Q18.5 17 18.5 10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+      <!-- Rim -->
+      <line x1="3.5" y1="10" x2="18.5" y2="10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+      <!-- Foot -->
+      <line x1="7.5" y1="17" x2="14.5" y2="17" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+      <!-- Chopsticks / spoon -->
+      <line x1="8" y1="4" x2="10" y2="8.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+      <line x1="14" y1="4" x2="12" y2="8.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+    </svg>
+    <div class="tab-lb">Lunch</div>
+  </div>
+  <div class="tab" data-c="dinner" onclick="setCat('dinner')">
+    <svg class="tab-ic" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M15.5 5 A7.5 7.5 0 1 0 15.5 17 A5.5 5.5 0 0 1 15.5 5 Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" fill="none"/>
+      <circle cx="17" cy="8" r="0.9" fill="currentColor"/>
+      <circle cx="19.5" cy="12" r="0.7" fill="currentColor"/>
+      <circle cx="17.5" cy="15.5" r="0.7" fill="currentColor"/>
+    </svg>
+    <div class="tab-lb">Dinner</div>
+  </div>
+  <div class="tab" data-c="plan" onclick="setCat('plan')">
+    <svg class="tab-ic" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Clipboard -->
+      <rect x="4" y="4" width="14" height="16" rx="2.5" stroke="currentColor" stroke-width="1.6"/>
+      <rect x="8" y="2" width="6" height="4" rx="1.5" stroke="currentColor" stroke-width="1.6"/>
+      <!-- Check items -->
+      <line x1="7.5" y1="10" x2="14.5" y2="10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="7.5" y1="13.5" x2="14.5" y2="13.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="7.5" y1="17" x2="12" y2="17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+    <div class="tab-lb">Plan</div>
+  </div>
+</nav></div>
+<div class="ov" id="ov" onclick="closeM(event)">
+  <div class="modal" id="modal">
+    <div class="m-hnd"></div>
+    <div class="m-sc" id="msc"></div>
+  </div>
+</div>
+<!-- ── MEAL PICKER ──────────────────────────────────────────────── -->
+<div class="picker-ov" id="pickerOv" onclick="closePicker(event)">
+  <div class="picker-sheet" id="pickerSheet">
+    <div class="m-hnd"></div>
+    <div class="picker-head" id="pickerHead"></div>
+    <div class="picker-grid" id="pickerGrid"></div>
+  </div>
+</div>
+
+<!-- ── SHOPPING LIST ─────────────────────────────────────────────── -->
+<div class="list-ov" id="listOv" onclick="closeList(event)">
+  <div class="list-sheet" id="listSheet">
+    <div class="m-hnd"></div>
+    <div class="list-top">
+      <div class="list-title">Shopping list</div>
+      <button class="list-copy" id="copyBtn" onclick="copyList()">Copy</button>
+    </div>
+    <div class="list-scroll" id="listScroll"></div>
+  </div>
+</div>
+
+<script>
+// ─── MEAL ICONS — inline SVG art, zero network requests ─────────────
+// Each meal type gets a custom SVG illustration rendered directly in the
+// card hero. Works in any environment — no fetch, no CORS, no CDN.
+const SVGI={
+jar:`<svg viewBox="0 0 80 80" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="16" y="22" width="48" height="10" rx="4.5"/><rect x="22" y="32" width="36" height="3" rx="1.5"/><rect x="14" y="35" width="52" height="35" rx="8"/><path d="M22 50 Q30 46 40 50 Q50 54 58 50"/><path d="M22 60 Q30 56 40 60 Q50 64 58 60"/><circle cx="36" cy="27" r="2" fill="rgba(255,255,255,0.85)"/><circle cx="44" cy="27" r="2" fill="rgba(255,255,255,0.85)"/></svg>`,
+bowl:`<svg viewBox="0 0 80 80" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2.4" stroke-linecap="round"><path d="M10 40 Q10 66 40 66 Q70 66 70 40"/><line x1="6" y1="40" x2="74" y2="40"/><line x1="24" y1="66" x2="56" y2="66"/><path d="M28 31 Q25 23 28 14"/><path d="M40 29 Q37 21 40 12"/><path d="M52 31 Q49 23 52 14"/></svg>`,
+noodles:`<svg viewBox="0 0 80 80" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2.4" stroke-linecap="round"><path d="M10 42 Q10 66 40 66 Q70 66 70 42"/><line x1="6" y1="42" x2="74" y2="42"/><line x1="24" y1="66" x2="56" y2="66"/><line x1="16" y1="28" x2="58" y2="36"/><line x1="22" y1="36" x2="64" y2="28"/></svg>`,
+pasta:`<svg viewBox="0 0 80 80" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2.4" stroke-linecap="round"><circle cx="42" cy="46" r="26"/><circle cx="42" cy="46" r="19"/><path d="M42 34 Q52 34 52 44 Q52 55 42 57 Q30 59 28 50 Q26 39 36 37"/><line x1="15" y1="20" x2="15" y2="58"/><path d="M11 22 L11 32 Q15 34 19 32 L19 22"/></svg>`,
+stew:`<svg viewBox="0 0 80 80" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="14" y="36" width="52" height="32" rx="9"/><path d="M11 36 Q11 29 40 29 Q69 29 69 36"/><path d="M36 29 Q36 23 40 23 Q44 23 44 29"/><path d="M14 44 Q7 44 7 50 Q7 56 14 56"/><path d="M66 44 Q73 44 73 50 Q73 56 66 56"/><path d="M30 22 Q28 15 30 9"/><path d="M40 20 Q38 13 40 7"/><path d="M50 22 Q48 15 50 9"/></svg>`,
+plate:`<svg viewBox="0 0 80 80" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2.4" stroke-linecap="round"><circle cx="40" cy="44" r="26"/><circle cx="40" cy="44" r="18"/><line x1="14" y1="22" x2="14" y2="58"/><path d="M10 24 L10 34 Q14 36 18 34 L18 24"/><line x1="66" y1="22" x2="66" y2="58"/><path d="M62 22 Q70 28 66 38"/></svg>`,
+wrap:`<svg viewBox="0 0 80 80" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2.4" stroke-linecap="round"><ellipse cx="40" cy="55" rx="22" ry="9"/><line x1="18" y1="55" x2="18" y2="30"/><line x1="62" y1="55" x2="62" y2="30"/><ellipse cx="40" cy="30" rx="22" ry="9"/><path d="M28 28 Q34 24 40 26 Q46 24 52 28"/><path d="M56 32 Q66 40 62 54"/></svg>`,
+egg:`<svg viewBox="0 0 80 80" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2.4" stroke-linecap="round"><path d="M14 36 L66 36 L62 64 Q62 70 40 70 Q18 70 18 64 Z"/><path d="M14 36 Q14 22 22 22 L58 22 Q66 22 66 36"/><circle cx="28" cy="52" r="5"/><circle cx="40" cy="50" r="5"/><circle cx="52" cy="52" r="5"/></svg>`,
+wok:`<svg viewBox="0 0 80 80" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2.4" stroke-linecap="round"><path d="M10 44 Q10 68 40 68 Q70 68 70 44"/><ellipse cx="40" cy="44" rx="30" ry="7"/><line x1="70" y1="46" x2="80" y2="36"/><path d="M22 44 Q18 36 22 28 Q24 22 22 16"/><path d="M40 44 Q36 36 40 28 Q42 22 40 16"/><path d="M58 44 Q54 36 58 28 Q60 22 58 16"/></svg>`
+};
+
+// Assign icon to each meal
+const MEAL_ICON={
+  'overnight-oats':'jar','weetabix-bowl':'jar','egg-muffins':'egg',
+  'cottage-cheese-bowl':'jar','banana-pancakes':'plate','salmon-eggs-toast':'plate',
+  'yogurt-parfait':'jar','pb-oats':'jar','egg-feta-scramble':'egg',
+  'teriyaki':'noodles','dal':'bowl','tikka':'bowl','thai-curry':'bowl',
+  'chilli':'stew','caesar':'wrap','greek-bowl':'plate','moroccan-soup':'stew',
+  'salmon-bowl':'noodles','bulgogi-bowl':'noodles','chicken-soup':'stew',
+  'tomato-lentil-soup':'stew','squash-soup':'stew','chicken-sweetcorn-soup':'stew',
+  'prawn-noodle-salad':'noodles','tuna-lentil-salad':'plate','bbq-chicken-bowl':'noodles',
+  'bolognese':'pasta','lentil-stew':'stew','shawarma':'plate','stirfry':'wok',
+  'keema':'stew','sweet-potato':'bowl','meatballs':'pasta','lemon-chicken':'plate',
+  'salmon-lentils':'plate','chicken-stroganoff':'bowl','lamb-hotpot':'stew',
+  'pesto-pasta':'pasta','tuscan-chicken-soup':'stew','beef-veg-soup':'stew',
+  'thai-coconut-soup':'stew','prawn-stirfry':'wok','fajita-bowl':'plate','lamb-saag':'stew'
+};
+
+function getMealIcon(id){
+  const key=MEAL_ICON[id]||'bowl';
+  return SVGI[key]||SVGI.bowl;
+}
+
+// ─── MEALS DATA ──────────────────────────────────────────────────
+const CL={breakfast:'Breakfast',lunch:'Lunch',dinner:'Dinner'};
+const MEALS=[
+{id:'overnight-oats',nm:'Overnight oat jar',cat:'breakfast',em:'🫙',
+ c1:'#6038B8',c2:'#3820A0',img:'oatmeal,overnight oats,breakfast bowl',
+ tags:['No cook','Batch Sunday','High fibre','Grab & go'],prep:'10 min',
+ mac:{k:520,p:47,c:55,fat:8,f:14},nt:'Per jar · add berries each morning only',
+ ings:[
+  {a:300,u:'g',n:'Rolled oats',w:'Quaker / Aldi'},
+  {a:1,u:'kg',n:'0% Greek yogurt',w:'Fage / Aldi Greekish'},
+  {a:5,u:'scoops',n:'Whey protein (any flavour)'},
+  {a:500,u:'ml',n:'Kefir (plain, low fat)',w:'Biotiful / Lidl'},
+  {a:5,u:'tbsp',n:'Chia seeds'},
+  {a:5,u:'tbsp',n:'Ground flaxseed'},
+  {a:500,u:'g',n:'Frozen berries',w:'Aldi / Lidl frozen'},
+ ],
+ steps:[
+  {t:'Set out jars',x:'Line up one jar per person per day — 5 for 1 person, 10 for 2.'},
+  {t:'Layer each jar',x:'Into each: 60g oats, 200g Greek yogurt, 1 scoop whey, 1 tbsp chia seeds, 1 tbsp ground flaxseed.'},
+  {t:'Add kefir and stir',x:'Pour 100ml kefir into each jar. Stir until the protein powder fully dissolves. Seal and refrigerate.'},
+  {t:'Morning',x:'Add 100g frozen berries straight from frozen each morning. Don\'t add the night before — they bleed and go soggy.'},
+ ],
+ notes:'Keeps 5 days refrigerated. Any whey flavour works — vanilla and chocolate both pair well with berries.',
+ shops:['Aldi','Lidl','Tesco','Asda','Sainsbury\'s'],
+},
+{id:'weetabix-bowl',nm:'Protein Weetabix bowl',cat:'breakfast',em:'🥣',
+ c1:'#A07028',c2:'#785018',img:null,
+ tags:['No cook','Overnight','Chocolate','High protein'],prep:'5 min',
+ mac:{k:570,p:56,c:54,fat:14,f:11},nt:'Per bowl · overnight for pudding texture, or eat straight away',
+ ings:[
+  {a:10,u:'biscuits',n:'Weetabix (2 per bowl)',w:'Weetabix / Lidl own-brand'},
+  {a:500,u:'ml',n:'Kefir (plain)',w:'Biotiful / Lidl'},
+  {a:5,u:'tbsp',n:'Chia seeds'},
+  {a:5,u:'tbsp',n:'Ground flaxseed'},
+  {a:1,u:'kg',n:'0% Greek yogurt',w:'Fage / Aldi'},
+  {a:5,u:'scoops',n:'Whey protein'},
+  {a:50,u:'g',n:'Dark chocolate chips (70%+)',w:'Aldi / Lidl'},
+ ],
+ steps:[
+  {t:'Set out containers',x:'Line up one container per person per day.'},
+  {t:'Layer the Weetabix',x:'Break 2 Weetabix into each. Pour 100ml kefir over them. Add 1 tbsp chia seeds and 1 tbsp ground flaxseed.'},
+  {t:'Mix the topping',x:'Mix 200g Greek yogurt with 1 scoop whey until smooth. Spoon over the soaked Weetabix.'},
+  {t:'Chocolate and refrigerate',x:'Scatter 10g dark chocolate chips over each bowl. Seal and refrigerate overnight — or eat immediately for more crunch.'},
+ ],
+ notes:'The chocolate chips add minimal calories but make it feel like a treat. Key for consistency. Weetabix softens overnight to a pudding-like texture.',
+ shops:['Aldi','Lidl','Tesco','Asda','Sainsbury\'s'],
+},
+{id:'egg-muffins',nm:'Egg white protein muffins',cat:'breakfast',em:'🥚',
+ c1:'#C08020',c2:'#986010',img:'egg muffin,breakfast eggs,protein',
+ tags:['Batch Sunday','High protein','Gluten free','Grab & go'],prep:'35 min',
+ mac:{k:280,p:32,c:8,fat:12,f:3},nt:'Per 3 muffins · 3 muffins = 1 serving',
+ ings:[
+  {a:12,u:'count',n:'Eggs (whole)'},
+  {a:300,u:'ml',n:'Egg whites (carton or fresh)',w:'Tesco / Asda'},
+  {a:250,u:'g',n:'Baby spinach',w:'Aldi / Lidl bags'},
+  {a:2,u:'count',n:'Red peppers (diced)'},
+  {a:200,u:'g',n:'Mushrooms (diced)',w:'Aldi / Lidl'},
+  {a:100,u:'g',n:'Reduced-fat cheddar (grated)',w:'Aldi / Lidl'},
+  {a:1,u:'tsp',n:'Garlic powder'},
+  {a:1,u:'tsp',n:'Smoked paprika'},
+ ],
+ steps:[
+  {t:'Preheat and prep',x:'Preheat oven to 180°C. Grease a 12-hole muffin tin generously with cooking spray or butter. Dice peppers and mushrooms, wilt spinach in a dry pan then squeeze out all excess water.'},
+  {t:'Make the egg mixture',x:'Whisk together 12 whole eggs and 300ml egg whites. Season with garlic powder, smoked paprika, salt and pepper. Mix well.'},
+  {t:'Fill the muffin tin',x:'Divide the wilted spinach, diced pepper and mushroom between the 12 holes. Sprinkle grated cheese over each. Pour the egg mixture over the top — fill to about ¾ full.'},
+  {t:'Bake',x:'Bake at 180°C for 20–22 mins until set, puffed and lightly golden. Cool in the tin 5 mins before removing. They will deflate slightly — this is normal.'},
+ ],
+ notes:'Keeps 5 days refrigerated. Microwave 45–60 seconds each morning from cold. Add any veg you like — courgette, onion, or sun-dried tomato work well. Eat 3 per serving.',
+ shops:['Aldi','Lidl','Tesco','Asda'],
+},
+{id:'cottage-cheese-bowl',nm:'Cottage cheese and berry bowl',cat:'breakfast',em:'🍓',
+ c1:'#A83068',c2:'#801850',img:'cottage cheese,berries,breakfast,healthy',
+ tags:['No cook','Assembly only','High protein','Quick'],prep:'2 min',
+ mac:{k:380,p:48,c:32,fat:5,f:5},nt:'Per bowl · build fresh each morning, takes 2 minutes',
+ ings:[
+  {a:1.25,u:'kg',n:'Low-fat cottage cheese (4%)',w:'Tesco / Asda own-brand'},
+  {a:500,u:'g',n:'Fresh or frozen berries'},
+  {a:150,u:'g',n:'Low-sugar granola',w:'Aldi Granola or Jordans'},
+  {a:5,u:'scoops',n:'Whey protein'},
+  {a:5,u:'tsp',n:'Honey (optional)'},
+ ],
+ steps:[
+  {t:'Scoop cottage cheese',x:'Add 250g cottage cheese to a bowl or portable container.'},
+  {t:'Mix in protein',x:'Stir in 1 scoop whey protein until evenly combined. The cottage cheese keeps it thick.'},
+  {t:'Top and serve',x:'Add 100g berries and 30g granola. Drizzle with honey if desired. Eat immediately or seal and refrigerate for up to 24 hours.'},
+ ],
+ notes:'Cottage cheese is the highest-protein dairy food per gram. The texture surprises people — try it cold with the crunch of granola before judging. Mix in a spoonful of peanut butter for extra fat and flavour.',
+ shops:['Aldi','Lidl','Tesco','Asda','Sainsbury\'s'],
+},
+{id:'teriyaki',nm:'Chicken teriyaki rice bowl',cat:'lunch',em:'🍱',
+ c1:'#1868A8',c2:'#0E4888',img:'teriyaki chicken,rice bowl,asian food',
+ tags:['Asian','Batch Sunday','Assembly only'],prep:'35 min',
+ mac:{k:650,p:62,c:68,fat:8,f:8},nt:'Per portion · 5 portions per person per week',
+ ings:[
+  {a:1,u:'kg',n:'Chicken breasts',w:'Aldi / Lidl'},
+  {a:450,u:'g',n:'Brown rice (dry)',w:'Tesco / Asda'},
+  {a:375,u:'g',n:'Frozen edamame',w:'Tesco / Asda frozen'},
+  {a:2,u:'count',n:'Cucumbers'},
+  {a:150,u:'ml',n:'Teriyaki sauce (low sodium)',w:'Kikkoman'},
+  {a:3,u:'tbsp',n:'Light soy sauce'},
+  {a:3,u:'tsp',n:'Sesame oil'},
+  {a:3,u:'tsp',n:'Garlic powder'},
+  {a:3,u:'tbsp',n:'Sesame seeds'},
+  {a:1,u:'bunch',n:'Spring onions'},
+ ],
+ steps:[
+  {t:'Cook rice',x:'Rinse rice until water runs clear. Cook in pot with twice the water volume. Boil, cover, lowest heat 25 mins. Rest lidded 10 mins — never lift the lid early.'},
+  {t:'Roast chicken',x:'Mix soy sauce, sesame oil, garlic powder. Rub over all chicken. Spread on 1–2 large baking trays. Roast at 200°C for 25–30 mins. Rest 5 mins then slice.'},
+  {t:'Cook edamame',x:'Pour boiling water over frozen edamame and leave 3 mins. Drain well.'},
+  {t:'Portion',x:'Slice cucumbers and spring onions. Divide rice, chicken, edamame and cucumber into containers. Drizzle teriyaki over the chicken. Top with sesame seeds and spring onion.'},
+ ],
+ notes:'Keeps 5 days refrigerated. Add a splash of water before reheating if rice looks dry.',
+ shops:['Aldi','Lidl','Tesco','Asda','Sainsbury\'s'],
+},
+{id:'dal',nm:'Red lentil dal with grilled chicken',cat:'lunch',em:'🫕',
+ c1:'#B04820',c2:'#883010',img:'red lentil dal,indian curry,lentils',
+ tags:['Indian','Batch Sunday','18g fibre','Best for cravings'],prep:'40 min',
+ mac:{k:680,p:65,c:72,fat:7,f:18},nt:'Per portion · highest fibre lunch on the plan',
+ ings:[
+  {a:1,u:'kg',n:'Chicken breasts',w:'Aldi / Lidl'},
+  {a:450,u:'g',n:'Red lentils (dry, rinsed)'},
+  {a:3,u:'count',n:'Onions (diced)'},
+  {a:12,u:'count',n:'Garlic cloves'},
+  {a:3,u:'tbsp',n:'Fresh ginger (grated)'},
+  {a:6,u:'tsp',n:'Ground cumin'},
+  {a:4,u:'tsp',n:'Turmeric'},
+  {a:3,u:'tsp',n:'Garam masala'},
+  {a:3,u:'tsp',n:'Smoked paprika'},
+  {a:3,u:'cans',n:'Tinned chopped tomatoes (400g each)',w:'Aldi own-brand'},
+  {a:1.2,u:'l',n:'Chicken stock'},
+  {a:3,u:'tbsp',n:'Vegetable oil'},
+  {a:400,u:'g',n:'Brown rice or 5 flatbreads'},
+  {a:2,u:'bunches',n:'Fresh coriander'},
+  {a:3,u:'count',n:'Limes'},
+ ],
+ steps:[
+  {t:'Rinse lentils',x:'Rinse all lentils until water runs clear. Start rice if using. Heat oil in a large pot.'},
+  {t:'Build the base',x:'Fry diced onion 7–8 mins until golden. Add minced garlic, ginger, cumin, turmeric, paprika. Cook 2 mins stirring constantly until deeply fragrant.'},
+  {t:'Simmer the dal',x:'Add lentils, tinned tomatoes and stock. Bring to boil, reduce to gentle simmer 20–25 mins until lentils are completely soft. Stir in garam masala at the end.'},
+  {t:'Cook chicken',x:'Season chicken with turmeric, salt and pepper. Grill or bake at 200°C for 25 mins. Rest and slice.'},
+  {t:'Portion',x:'Divide dal and rice into containers. Add chicken. Squeeze lime over each. Top with coriander.'},
+ ],
+ notes:'Tastes significantly better on day 2 and 3. Dal thickens when cold — add a splash of water when reheating. Best meal on the plan for controlling afternoon and evening cravings.',
+ shops:['Aldi','Lidl','Tesco','Asda'],
+},
+{id:'tikka',nm:'Chicken tikka, rice and raita',cat:'lunch',em:'🍛',
+ c1:'#B85820',c2:'#904010',img:'chicken tikka,indian curry,spice',
+ tags:['Indian','Marinate overnight','Batch Sunday'],prep:'45 min',
+ mac:{k:650,p:62,c:66,fat:9,f:6},nt:'Per portion · marinate Saturday night for best flavour',
+ ings:[
+  {a:1,u:'kg',n:'Chicken breasts',w:'Aldi / Lidl'},
+  {a:375,u:'g',n:'0% Greek yogurt (marinade)',w:'Fage / Aldi'},
+  {a:5,u:'tbsp',n:'Tikka masala paste',w:'Patak\'s — Tesco / Asda'},
+  {a:3,u:'count',n:'Lemons'},
+  {a:3,u:'tsp',n:'Garlic powder'},
+  {a:400,u:'g',n:'Brown rice (dry)'},
+  {a:500,u:'g',n:'0% Greek yogurt (raita)'},
+  {a:2,u:'count',n:'Cucumbers (grated for raita)'},
+  {a:3,u:'tbsp',n:'Fresh mint or 1.5 tsp dried'},
+  {a:1.5,u:'tsp',n:'Ground cumin'},
+ ],
+ steps:[
+  {t:'Make marinade',x:'Mix yogurt, tikka paste, juice of 2 lemons, garlic powder. Coat chicken thoroughly. Cover and refrigerate — minimum 30 mins, overnight dramatically better.'},
+  {t:'Cook rice',x:'Rinse rice. Cook with twice volume cold water. Boil, cover, lowest heat 25 mins. Rest lidded 10 mins.'},
+  {t:'Bake chicken',x:'200°C oven. Spread marinated chicken on lined trays. Bake 25–30 mins until edges char slightly. The char is the flavour — don\'t pull early.'},
+  {t:'Make raita',x:'Grate cucumbers, squeeze out excess water. Mix with yogurt, mint, cumin, pinch salt, squeeze of remaining lemon.'},
+  {t:'Portion',x:'Divide rice and chicken into containers. Keep raita in separate small pots — add at lunchtime not during storage.'},
+ ],
+ notes:'The overnight marinade is the difference between good and excellent. Prep Saturday night — takes 5 minutes.',
+ shops:['Tesco','Asda','Sainsbury\'s','Lidl'],
+},
+{id:'thai-curry',nm:'Thai green curry chicken',cat:'lunch',em:'🥘',
+ c1:'#207848',c2:'#106030',img:'thai green curry,coconut curry,asian',
+ tags:['Thai','Batch Sunday','Light coconut milk'],prep:'35 min',
+ mac:{k:660,p:58,c:65,fat:12,f:7},nt:'Per portion · light coconut milk saves 150 kcal vs full-fat',
+ ings:[
+  {a:1,u:'kg',n:'Chicken breasts (chunks)',w:'Aldi / Lidl'},
+  {a:800,u:'ml',n:'Light coconut milk (2 × 400ml tins)',w:'Blue Dragon — Tesco'},
+  {a:5,u:'tbsp',n:'Thai green curry paste',w:'Mae Ploy — Asian supermarkets'},
+  {a:3,u:'count',n:'Courgettes (sliced)'},
+  {a:3,u:'count',n:'Red peppers (sliced)'},
+  {a:3,u:'tbsp',n:'Fish sauce or light soy sauce'},
+  {a:3,u:'count',n:'Limes'},
+  {a:400,u:'g',n:'Jasmine rice (dry)',w:'Tesco / Asda'},
+  {a:3,u:'tbsp',n:'Vegetable oil'},
+  {a:250,u:'ml',n:'Chicken stock'},
+  {a:2,u:'bunches',n:'Fresh coriander'},
+ ],
+ steps:[
+  {t:'Start rice',x:'Rinse jasmine rice. Cook with twice volume cold water. Boil, cover, lowest heat 15 mins. Rest 5 mins off heat.'},
+  {t:'Fry curry paste',x:'Heat oil in wide pan on medium-high. Add curry paste and fry 1–2 mins stirring constantly until very fragrant.'},
+  {t:'Build curry',x:'Pour in coconut milk and stock. Stir to combine. Bring to a gentle simmer.'},
+  {t:'Cook chicken and veg',x:'Add chicken. Simmer 12 mins. Add courgette and peppers, cook 5 more mins until just tender.'},
+  {t:'Season and portion',x:'Add fish sauce and lime juice. Taste — salty, slightly sweet, fresh. Divide rice and curry into containers. Top with coriander.'},
+ ],
+ notes:'Mae Ploy or Maesri paste from Asian supermarkets is significantly better than UK supermarket own-brand. Add a handful of spinach at the end for extra fibre.',
+ shops:['Tesco','Asda','Sainsbury\'s','Asian supermarkets'],
+},
+{id:'chilli',nm:'Beef and lentil chilli',cat:'lunch',em:'🌶️',
+ c1:'#982818',c2:'#781008',img:'beef chilli,chilli con carne,spicy',
+ tags:['Tex-Mex','No beans','Batch Sunday','High fibre'],prep:'40 min',
+ mac:{k:550,p:58,c:52,fat:10,f:13},nt:'Per portion · lentils replace beans — more protein, better texture',
+ ings:[
+  {a:1,u:'kg',n:'5% beef mince',w:'Aldi / Lidl'},
+  {a:375,u:'g',n:'Red lentils (dry, rinsed)'},
+  {a:800,u:'g',n:'Tinned chopped tomatoes (2 tins)',w:'Aldi own-brand'},
+  {a:750,u:'ml',n:'Beef stock'},
+  {a:3,u:'count',n:'Onions (diced)'},
+  {a:8,u:'count',n:'Garlic cloves'},
+  {a:5,u:'tsp',n:'Ground cumin'},
+  {a:5,u:'tsp',n:'Smoked paprika'},
+  {a:3,u:'tsp',n:'Chilli powder'},
+  {a:3,u:'tsp',n:'Dried oregano'},
+  {a:3,u:'tbsp',n:'Olive oil'},
+  {a:400,u:'g',n:'Brown rice or flatbread'},
+  {a:200,u:'g',n:'0% Greek yogurt (to serve)'},
+  {a:1,u:'bunch',n:'Fresh coriander'},
+ ],
+ steps:[
+  {t:'Soften onion',x:'Heat olive oil. Fry diced onion 7–8 mins until soft and starting to colour.'},
+  {t:'Add garlic and spices',x:'Add minced garlic, cumin, paprika, chilli, oregano. Cook 2 mins stirring constantly. Toasting spices is essential for depth.'},
+  {t:'Brown the beef',x:'Turn heat to high. Add beef mince and break apart. Cook until browned all over, 6–8 mins.'},
+  {t:'Simmer with lentils',x:'Add lentils, tinned tomatoes, stock. Bring to boil, reduce to steady simmer uncovered. Cook 30 mins until lentils are soft and sauce thick.'},
+  {t:'Portion',x:'Cook rice separately. Divide chilli and rice into containers. Greek yogurt and coriander at serving time.'},
+ ],
+ notes:'Gets better every day — day 3 is the peak. Greek yogurt instead of sour cream: same effect, 5× the protein.',
+ shops:['Aldi','Lidl','Tesco','Asda'],
+},
+{id:'caesar',nm:'Chicken Caesar wrap',cat:'lunch',em:'🌯',
+ c1:'#3A6830',c2:'#285020',img:'chicken caesar salad,wrap,lettuce',
+ tags:['British','Quick assembly','Greek yogurt dressing'],prep:'25 min',
+ mac:{k:580,p:63,c:44,fat:13,f:7},nt:'Per wrap · assemble fresh at lunchtime — pre-assembled goes soggy',
+ ings:[
+  {a:750,u:'g',n:'Chicken breasts',w:'Aldi / Lidl'},
+  {a:5,u:'count',n:'Large wholemeal wraps',w:'Mission Wholemeal — Tesco'},
+  {a:500,u:'g',n:'Romaine lettuce (2 bags)'},
+  {a:200,u:'g',n:'0% Greek yogurt (dressing)'},
+  {a:60,u:'g',n:'Parmesan (grated)'},
+  {a:2,u:'count',n:'Garlic cloves (for dressing)'},
+  {a:2,u:'count',n:'Lemons'},
+  {a:2,u:'tsp',n:'Dijon mustard'},
+  {a:1,u:'tbsp',n:'Worcestershire sauce'},
+  {a:1,u:'tbsp',n:'Olive oil'},
+ ],
+ steps:[
+  {t:'Cook chicken',x:'Rub chicken with olive oil, salt and pepper. Roast at 200°C for 25 mins. Rest and slice thinly.'},
+  {t:'Make yogurt Caesar dressing',x:'Mix Greek yogurt, minced garlic, Dijon mustard, Worcestershire sauce, lemon juice, salt and pepper until smooth. Sharp, creamy, garlicky.'},
+  {t:'Batch the components',x:'Divide chicken into portions. Keep wraps, chicken, lettuce, dressing and parmesan separate until assembly.'},
+  {t:'Assemble at lunch',x:'Lay wrap flat, spread dressing, add lettuce and chicken, sprinkle parmesan. Roll tightly. Takes 90 seconds — do it fresh.'},
+ ],
+ notes:'Greek yogurt dressing is as good as mayo-based Caesar at a fraction of the fat. Never pre-assemble — wraps go soggy within 20 minutes.',
+ shops:['Aldi','Lidl','Tesco','Asda','Sainsbury\'s'],
+},
+{id:'greek-bowl',nm:'Greek chicken bowl',cat:'lunch',em:'🥗',
+ c1:'#1858A0',c2:'#0C4080',img:'greek salad,mediterranean,feta,chicken',
+ tags:['Mediterranean','Batch Sunday','Refreshing','No hot cook'],prep:'30 min',
+ mac:{k:620,p:58,c:55,fat:15,f:8},nt:'Per bowl · light and fresh — best in warm weather',
+ ings:[
+  {a:1,u:'kg',n:'Chicken breasts',w:'Aldi / Lidl'},
+  {a:3,u:'tsp',n:'Dried oregano'},
+  {a:2,u:'tbsp',n:'Olive oil'},
+  {a:3,u:'count',n:'Lemons'},
+  {a:400,u:'g',n:'Brown rice or bulghur wheat (dry)'},
+  {a:3,u:'count',n:'Cucumbers (sliced)'},
+  {a:500,u:'g',n:'Cherry tomatoes (halved)'},
+  {a:100,u:'g',n:'Reduced-fat feta (crumbled)',w:'Tesco / Asda'},
+  {a:1,u:'bunch',n:'Fresh parsley'},
+  {a:250,u:'g',n:'0% Greek yogurt (dressing)'},
+  {a:2,u:'count',n:'Garlic cloves (for dressing)'},
+ ],
+ steps:[
+  {t:'Marinate and cook chicken',x:'Rub chicken with olive oil, oregano, lemon juice, salt and pepper. Roast at 200°C for 25 mins or grill until cooked. Rest 5 mins then slice.'},
+  {t:'Cook rice or bulghur',x:'Cook rice or bulghur per packet instructions. Cool before assembling to stop veg wilting.'},
+  {t:'Make yogurt dressing',x:'Mix Greek yogurt with minced garlic, lemon juice, dried oregano, salt. Thin with a splash of water if needed. Sharp, creamy, herby.'},
+  {t:'Assemble and portion',x:'Divide rice between containers. Add chicken, cucumber, cherry tomatoes, crumbled feta. Top with parsley. Keep dressing in separate small pots.'},
+ ],
+ notes:'Bulghur wheat instead of rice gives extra fibre and a nuttier texture — worth trying. The bowl is great cold straight from the fridge on busy days when reheating isn\'t possible.',
+ shops:['Aldi','Lidl','Tesco','Asda'],
+},
+{id:'moroccan-soup',nm:'Moroccan beef and lentil soup',cat:'lunch',em:'🍵',
+ c1:'#904820',c2:'#703010',img:'moroccan soup,lentil soup,spice,stew',
+ tags:['Moroccan','Batch Sunday','High fibre','Warming'],prep:'45 min',
+ mac:{k:580,p:56,c:56,fat:12,f:14},nt:'Per portion · harira-inspired — best batch meal on the plan',
+ ings:[
+  {a:1,u:'kg',n:'5% beef mince',w:'Aldi / Lidl'},
+  {a:400,u:'g',n:'Red lentils (dry, rinsed)'},
+  {a:800,u:'g',n:'Tinned chopped tomatoes (2 tins)'},
+  {a:1.5,u:'l',n:'Beef stock'},
+  {a:3,u:'count',n:'Onions (diced)'},
+  {a:10,u:'count',n:'Garlic cloves'},
+  {a:2,u:'tbsp',n:'Fresh ginger (grated)'},
+  {a:5,u:'tsp',n:'Ground cumin'},
+  {a:3,u:'tsp',n:'Ground coriander'},
+  {a:3,u:'tsp',n:'Smoked paprika'},
+  {a:1.5,u:'tsp',n:'Cinnamon'},
+  {a:1.5,u:'tsp',n:'Turmeric'},
+  {a:2,u:'tbsp',n:'Olive oil'},
+  {a:2,u:'bunches',n:'Fresh coriander'},
+  {a:3,u:'count',n:'Lemons'},
+ ],
+ steps:[
+  {t:'Build the flavour base',x:'Heat olive oil in a large pot. Fry diced onion 7–8 mins until golden. Add minced garlic and ginger, cook 2 mins. Add all the spices and stir constantly for 2 mins.'},
+  {t:'Brown beef and add lentils',x:'Turn heat to high. Add beef mince and break apart until browned, 6–7 mins. Add rinsed lentils, tinned tomatoes and stock.'},
+  {t:'Simmer',x:'Bring to a boil, reduce to steady simmer. Cook uncovered 30 mins until lentils are soft and soup has thickened slightly.'},
+  {t:'Finish and portion',x:'Stir in lemon juice. Taste — it should be warming, spiced, slightly sweet from the cinnamon. Divide into containers. Top with fresh coriander.'},
+ ],
+ notes:'Cinnamon is the key ingredient that distinguishes this from a regular chilli. Don\'t skip it. Thickens significantly when cold — reheats beautifully with a splash of water. Serve with bread or pitta for more carbs.',
+ shops:['Aldi','Lidl','Tesco','Asda'],
+},
+{id:'bolognese',nm:'Beef bolognese, wholemeal pasta',cat:'dinner',em:'🍝',
+ c1:'#A82838',c2:'#881020',img:'bolognese pasta,spaghetti,meat sauce',
+ tags:['Italian','Batch or daily','Comfort food','Classic'],prep:'20 min',
+ mac:{k:560,p:55,c:60,fat:12,f:8},nt:'Per portion · the longer it simmers, the better it tastes',
+ ings:[
+  {a:1,u:'kg',n:'5% beef mince',w:'Aldi / Lidl'},
+  {a:800,u:'g',n:'Tinned chopped tomatoes (2 tins)'},
+  {a:3,u:'count',n:'Onions (finely diced)'},
+  {a:8,u:'count',n:'Garlic cloves'},
+  {a:3,u:'count',n:'Carrots (finely diced)'},
+  {a:3,u:'count',n:'Celery stalks (finely diced)'},
+  {a:5,u:'tbsp',n:'Tomato purée'},
+  {a:400,u:'ml',n:'Beef stock'},
+  {a:3,u:'tsp',n:'Dried oregano'},
+  {a:3,u:'tsp',n:'Mixed herbs'},
+  {a:3,u:'tbsp',n:'Olive oil'},
+  {a:400,u:'g',n:'Wholemeal pasta (dry)',w:'Tesco / Asda'},
+  {a:50,u:'g',n:'Parmesan (grated)'},
+  {a:3,u:'count',n:'Bay leaves'},
+ ],
+ steps:[
+  {t:'Soften the veg',x:'Heat olive oil on medium. Add onion, carrot, celery. Cook 8–10 mins until completely soft. This base is the foundation — don\'t rush it.'},
+  {t:'Brown the mince',x:'Add garlic, cook 1 min. Turn heat high. Add beef mince, break apart. Cook until all beef is browned and liquid evaporated, 7–8 mins.'},
+  {t:'Build the sauce',x:'Stir in tomato purée and cook 1 min. Add tomatoes, stock, oregano, herbs, bay leaves. Bring to a boil.'},
+  {t:'Long simmer',x:'Reduce to lowest heat. Simmer uncovered minimum 35 mins — ideally 50–60 mins. Thick, dark and rich. Remove bay leaves.'},
+  {t:'Cook pasta and portion',x:'Cook pasta in well-salted boiling water. Drain. Divide sauce and pasta into containers — keep separate if possible. Parmesan at serving time.'},
+ ],
+ notes:'Stores 5 days refrigerated. Reheat sauce separately and combine with pasta before eating. Freezes brilliantly — make a double batch.',
+ shops:['Aldi','Lidl','Tesco','Asda'],
+},
+{id:'lentil-stew',nm:'Chicken and lentil stew',cat:'dinner',em:'🍲',
+ c1:'#286840',c2:'#185030',img:'chicken stew,lentil,casserole,hearty',
+ tags:['British','Batch Sunday','14g fibre','Best for evenings'],prep:'20 min',
+ mac:{k:520,p:58,c:48,fat:8,f:14},nt:'Per portion · best evening meal on the plan for cravings',
+ ings:[
+  {a:1.25,u:'kg',n:'Chicken thighs (boneless, skinless)',w:'Aldi / Lidl'},
+  {a:375,u:'g',n:'Red lentils (dry, rinsed)'},
+  {a:5,u:'count',n:'Carrots (diced)'},
+  {a:5,u:'count',n:'Celery stalks (diced)'},
+  {a:3,u:'count',n:'Onions (diced)'},
+  {a:8,u:'count',n:'Garlic cloves'},
+  {a:1.75,u:'l',n:'Chicken stock'},
+  {a:800,u:'g',n:'Tinned chopped tomatoes (2 tins)'},
+  {a:3,u:'tsp',n:'Smoked paprika'},
+  {a:3,u:'tsp',n:'Dried thyme'},
+  {a:3,u:'count',n:'Bay leaves'},
+  {a:3,u:'tbsp',n:'Olive oil'},
+ ],
+ steps:[
+  {t:'Brown the chicken',x:'Season thighs with salt, pepper, smoked paprika. Heat oil in large pot on high. Brown 3 mins each side until golden. Remove and set aside.'},
+  {t:'Soften the veg',x:'Reduce heat to medium. Add onion, carrot, celery to the same pot. Cook 6–8 mins, scraping up the brown bits. Add garlic, thyme, remaining paprika. Cook 1 more min.'},
+  {t:'Build and simmer',x:'Add lentils, tinned tomatoes, stock, bay leaves. Return chicken. Bring to boil, reduce to gentle simmer. Cover and cook 30 mins.'},
+  {t:'Shred and finish',x:'Remove chicken and shred with two forks — it should pull apart easily. Return to pot. Remove bay leaves. Season to taste.'},
+  {t:'Portion',x:'If too thin, simmer uncovered 5 more mins. Divide into containers per person. Cool before sealing.'},
+ ],
+ notes:'Chicken thighs stay moist after reheating — intentional. Thickens when cold; add water or stock when reheating. 14g fibre keeps blood sugar stable for hours after eating.',
+ shops:['Aldi','Lidl','Tesco','Asda'],
+},
+{id:'shawarma',nm:'Chicken shawarma bowl',cat:'dinner',em:'🧆',
+ c1:'#787038',c2:'#585020',img:'chicken shawarma,middle eastern,bowl,rice',
+ tags:['Middle Eastern','Marinate overnight','Assembly'],prep:'30 min',
+ mac:{k:530,p:55,c:52,fat:10,f:7},nt:'Per portion · cinnamon in the spice mix is non-negotiable',
+ ings:[
+  {a:1,u:'kg',n:'Chicken breasts',w:'Aldi / Lidl'},
+  {a:5,u:'tsp',n:'Ground cumin'},
+  {a:3,u:'tsp',n:'Turmeric'},
+  {a:3,u:'tsp',n:'Ground coriander'},
+  {a:1.5,u:'tsp',n:'Cinnamon'},
+  {a:1.5,u:'tsp',n:'Smoked paprika'},
+  {a:3,u:'tbsp',n:'Olive oil'},
+  {a:3,u:'count',n:'Lemons'},
+  {a:400,u:'g',n:'Brown rice (dry)'},
+  {a:3,u:'count',n:'Cucumbers (sliced)'},
+  {a:5,u:'count',n:'Tomatoes (diced)'},
+  {a:2,u:'bunches',n:'Fresh flat-leaf parsley'},
+  {a:500,u:'g',n:'0% Greek yogurt (garlic sauce)'},
+  {a:5,u:'count',n:'Garlic cloves (for sauce)'},
+ ],
+ steps:[
+  {t:'Marinate',x:'Mix all spices, olive oil, juice of 2 lemons. Score chicken lightly and coat thoroughly. Refrigerate minimum 30 mins — overnight dramatically better.'},
+  {t:'Cook rice',x:'Rinse rice. Cook with twice volume cold water. Boil, cover, lowest heat 25 mins. Rest lidded 10 mins.'},
+  {t:'Make garlic yogurt sauce',x:'Mix 500g yogurt with minced garlic, juice of remaining lemon, salt. Sharp and garlicky. Keeps 5 days.'},
+  {t:'Cook the chicken',x:'200°C oven. Roast 25–30 mins until edges char slightly. Rest 5 mins. Slice thinly across the grain.'},
+  {t:'Build bowls',x:'Divide rice, chicken, cucumber, diced tomato into containers. Keep garlic sauce in separate small pots. Add parsley at serving time.'},
+ ],
+ notes:'The cinnamon makes shawarma taste like shawarma — never skip it. The garlic yogurt is the most important element; make extra. Works cold.',
+ shops:['Aldi','Lidl','Tesco','Asda'],
+},
+{id:'stirfry',nm:'Beef stir fry with veg',cat:'dinner',em:'🥢',
+ c1:'#185070',c2:'#0C3050',img:'beef stir fry,wok,asian vegetables,noodles',
+ tags:['Asian','Cook fresh','10 minutes','Hot pan essential'],prep:'10 min',
+ mac:{k:480,p:50,c:42,fat:10,f:8},nt:'Per portion · only meal on the plan cooked fresh nightly',
+ ings:[
+  {a:1,u:'kg',n:'Lean beef stir fry strips',w:'Aldi / Lidl — buy frozen'},
+  {a:1,u:'kg',n:'Stir fry veg mix (bags)',w:'Aldi / Lidl frozen or fresh'},
+  {a:150,u:'ml',n:'Light soy sauce',w:'Kikkoman'},
+  {a:5,u:'tbsp',n:'Oyster sauce',w:'Blue Dragon — Tesco'},
+  {a:5,u:'tsp',n:'Sesame oil'},
+  {a:5,u:'count',n:'Garlic cloves'},
+  {a:5,u:'tsp',n:'Fresh ginger (grated)'},
+  {a:5,u:'tbsp',n:'Vegetable oil'},
+  {a:2,u:'bunches',n:'Spring onions'},
+  {a:5,u:'tbsp',n:'Sesame seeds'},
+  {a:400,u:'g',n:'Egg noodles or brown rice (dry, optional)'},
+ ],
+ steps:[
+  {t:'Mix sauce and heat pan',x:'Combine soy sauce, oyster sauce and sesame oil. Get a wok or large pan over the highest flame you have — minimum 2 mins to reach temperature.'},
+  {t:'Sear beef in batches',x:'Add half the oil. Add half the beef in a single layer. Do NOT stir for 90 seconds. Flip, 30 seconds. Remove. Repeat. Batching is essential — crowding causes steaming.'},
+  {t:'Cook aromatics',x:'Add remaining oil. Add minced garlic and grated ginger. Stir constantly for 30 seconds.'},
+  {t:'Add veg',x:'Add stir fry veg. Toss and cook 3–4 mins until just tender with bite. Don\'t overcook.'},
+  {t:'Combine',x:'Return beef to pan. Pour over sauce. Toss 1 min. Serve over noodles or rice. Top with spring onions and sesame seeds.'},
+ ],
+ notes:'The only meal here that doesn\'t batch well — only good cooked fresh. Takes 10 minutes once prepped. Weekly shopping amounts shown above.',
+ shops:['Aldi','Lidl','Tesco','Asda'],
+},
+{id:'keema',nm:'Beef keema with lentils and rice',cat:'dinner',em:'🍛',
+ c1:'#685020',c2:'#483808',img:'beef mince curry,keema,indian spice,rice',
+ tags:['Indian','Batch Sunday','12g fibre'],prep:'20 min',
+ mac:{k:560,p:58,c:58,fat:11,f:12},nt:'Per portion · lentils absorb the spices and become the dish',
+ ings:[
+  {a:1,u:'kg',n:'5% beef mince',w:'Aldi / Lidl'},
+  {a:300,u:'g',n:'Red lentils (dry, rinsed)'},
+  {a:3,u:'count',n:'Onions (diced)'},
+  {a:8,u:'count',n:'Garlic cloves'},
+  {a:3,u:'tbsp',n:'Fresh ginger (grated)'},
+  {a:5,u:'tsp',n:'Ground cumin'},
+  {a:5,u:'tsp',n:'Ground coriander'},
+  {a:3,u:'tsp',n:'Turmeric'},
+  {a:2,u:'tsp',n:'Chilli powder'},
+  {a:800,u:'g',n:'Tinned chopped tomatoes (2 tins)'},
+  {a:500,u:'ml',n:'Beef or chicken stock'},
+  {a:3,u:'tbsp',n:'Vegetable oil'},
+  {a:2,u:'bunches',n:'Fresh coriander'},
+  {a:450,u:'g',n:'Brown rice (dry)'},
+  {a:5,u:'tbsp',n:'0% Greek yogurt (to serve)'},
+ ],
+ steps:[
+  {t:'Fry aromatics',x:'Heat oil. Fry diced onion 6–7 mins until golden. Add minced garlic and ginger, cook 2 mins.'},
+  {t:'Toast spices',x:'Add cumin, coriander, turmeric, chilli. Stir constantly 1–2 mins until very fragrant. Essential step.'},
+  {t:'Brown the mince',x:'Turn heat to high. Add beef mince, break apart. Cook until browned all over, 6–7 mins.'},
+  {t:'Simmer with lentils',x:'Add lentils, tinned tomatoes, stock. Bring to boil, steady simmer uncovered 25–30 mins until lentils completely soft and sauce thick.'},
+  {t:'Portion',x:'Cook rice separately. Divide keema and rice into containers per person. Top with fresh coriander and a tbsp Greek yogurt.'},
+ ],
+ notes:'Lentils thicken the sauce AND add 12g fibre per portion. Tastes better every day. Freeze portions if cooking for one person and want variety.',
+ shops:['Aldi','Lidl','Tesco','Asda'],
+},
+{id:'sweet-potato',nm:'Chicken and sweet potato curry',cat:'dinner',em:'🍠',
+ c1:'#985820',c2:'#784008',img:'sweet potato curry,indian,coconut,spinach',
+ tags:['Indian','Batch Sunday','Training day meal','Filling'],prep:'20 min',
+ mac:{k:614,p:51,c:72,fat:10,f:8},nt:'Per portion · best eaten on heavy training days — highest carb dinner',
+ ings:[
+  {a:900,u:'g',n:'Chicken breasts (chunks)',w:'Aldi / Lidl'},
+  {a:1,u:'kg',n:'Sweet potatoes (peeled, cubed)',w:'Aldi / Lidl'},
+  {a:500,u:'ml',n:'Light coconut milk',w:'Blue Dragon — Tesco'},
+  {a:5,u:'tbsp',n:'Medium curry paste',w:'Patak\'s madras or tikka'},
+  {a:250,u:'g',n:'Fresh spinach',w:'Aldi / Lidl bags'},
+  {a:400,u:'g',n:'Brown rice (dry)'},
+  {a:3,u:'tbsp',n:'Vegetable oil'},
+  {a:5,u:'count',n:'Garlic cloves'},
+  {a:2,u:'tbsp',n:'Fresh ginger (grated)'},
+  {a:250,u:'ml',n:'Chicken stock'},
+  {a:3,u:'count',n:'Limes'},
+  {a:2,u:'bunches',n:'Fresh coriander'},
+ ],
+ steps:[
+  {t:'Start rice',x:'Rinse rice. Cook with twice volume cold water. Boil, cover, lowest heat 25 mins. Rest 10 mins.'},
+  {t:'Fry curry paste',x:'Heat oil in large pan. Add curry paste, fry 2 mins stirring constantly. Add minced garlic and ginger, cook 1 more min.'},
+  {t:'Add coconut milk',x:'Pour in coconut milk and stock. Stir to combine. Bring to a simmer.'},
+  {t:'Cook chicken and potato',x:'Add chicken and sweet potato. Simmer 20–25 mins until sweet potato is completely tender and chicken cooked through.'},
+  {t:'Add spinach and finish',x:'Stir in spinach — wilts in 2 mins. Add lime juice, adjust salt. Divide rice and curry into containers. Add coriander.'},
+ ],
+ notes:'Sweet potato paired with protein and fat makes the blood sugar impact gentle. Best meal on the plan on heavy leg days.',
+ shops:['Aldi','Lidl','Tesco','Asda'],
+},
+{id:'meatballs',nm:'Lean beef meatballs with pasta',cat:'dinner',em:'🍝',
+ c1:'#902030',c2:'#700818',img:'meatballs pasta,italian,tomato sauce',
+ tags:['Italian','Batch Sunday','Comfort food','Different texture'],prep:'30 min',
+ mac:{k:612,p:58,c:67,fat:14,f:9},nt:'Per portion · same protein as bolognese, completely different experience',
+ ings:[
+  {a:1,u:'kg',n:'5% beef mince',w:'Aldi / Lidl'},
+  {a:1,u:'count',n:'Egg (to bind meatballs)'},
+  {a:30,u:'g',n:'Wholemeal breadcrumbs'},
+  {a:800,u:'g',n:'Tinned chopped tomatoes (2 tins)'},
+  {a:2,u:'count',n:'Onions (diced)'},
+  {a:6,u:'count',n:'Garlic cloves'},
+  {a:3,u:'tbsp',n:'Tomato purée'},
+  {a:3,u:'tsp',n:'Dried mixed herbs'},
+  {a:3,u:'tsp',n:'Dried oregano'},
+  {a:400,u:'g',n:'Wholemeal pasta (dry)'},
+  {a:50,u:'g',n:'Parmesan (grated)'},
+  {a:3,u:'tbsp',n:'Olive oil'},
+ ],
+ steps:[
+  {t:'Make meatballs',x:'Mix beef with egg, breadcrumbs, half the minced garlic, 1 tsp each herbs and oregano, salt and pepper. Roll into golf ball-sized balls (~30). Refrigerate 10 mins to firm up.'},
+  {t:'Brown meatballs',x:'Heat oil on high. Brown meatballs in batches 4–5 mins, turning regularly until coloured all over. Remove and set aside.'},
+  {t:'Make tomato sauce',x:'In same pan, fry diced onion 5 mins. Add remaining garlic, herbs, oregano, cook 1 min. Add tinned tomatoes and tomato purée. Bring to a simmer.'},
+  {t:'Finish in sauce',x:'Return browned meatballs to sauce. Simmer uncovered 20 mins until cooked through and sauce thickened.'},
+  {t:'Cook pasta and portion',x:'Cook wholemeal pasta separately. Divide into containers per person. Keep pasta and sauce separate if possible. Add parmesan at serving time.'},
+ ],
+ notes:'Rolling meatballs takes 10 minutes but the result is a completely different eating experience to bolognese. Breadcrumbs and egg are essential — don\'t skip.',
+ shops:['Aldi','Lidl','Tesco','Asda'],
+},
+{id:'lemon-chicken',nm:'Lemon herb chicken with roasted veg',cat:'dinner',em:'🍋',
+ c1:'#807028',c2:'#606010',img:'roasted chicken,mediterranean vegetables,lemon herb',
+ tags:['Mediterranean','Batch Sunday','Light','Low carb option'],prep:'40 min',
+ mac:{k:440,p:52,c:22,fat:14,f:8},nt:'Per portion · lightest dinner on the plan — no pasta or rice needed',
+ ings:[
+  {a:1,u:'kg',n:'Chicken breasts',w:'Aldi / Lidl'},
+  {a:3,u:'count',n:'Lemons'},
+  {a:6,u:'count',n:'Garlic cloves'},
+  {a:3,u:'tsp',n:'Dried oregano'},
+  {a:3,u:'tsp',n:'Dried thyme'},
+  {a:3,u:'tsp',n:'Smoked paprika'},
+  {a:3,u:'tbsp',n:'Olive oil'},
+  {a:2,u:'count',n:'Courgettes (cut into chunks)'},
+  {a:2,u:'count',n:'Red peppers (cut into chunks)'},
+  {a:1,u:'count',n:'Aubergine (cut into chunks)'},
+  {a:300,u:'g',n:'Cherry tomatoes'},
+  {a:1,u:'bunch',n:'Fresh basil or flat-leaf parsley'},
+ ],
+ steps:[
+  {t:'Marinate chicken',x:'Mix olive oil, juice of 2 lemons, minced garlic, oregano, thyme, paprika, salt and pepper. Coat chicken thoroughly. Marinate minimum 20 mins, longer is better.'},
+  {t:'Prep veg',x:'Cut courgettes, peppers and aubergine into roughly equal chunks. Toss with a little olive oil, salt and pepper. Spread across a large baking tray.'},
+  {t:'Roast everything',x:'200°C oven. Place chicken on one tray and veg on another. Roast both for 25–30 mins. The veg should be charred at the edges; the chicken should be golden.'},
+  {t:'Add cherry tomatoes',x:'For the last 10 mins of cooking, scatter cherry tomatoes over the veg tray. They blister and burst, creating a natural sauce.'},
+  {t:'Portion',x:'Divide chicken and roasted veg into containers per person. Squeeze remaining lemon juice over everything. Top with fresh herbs.'},
+ ],
+ notes:'This is the lightest dinner on the plan at 440 kcal — useful on rest days or when you\'ve had a bigger lunch. Add brown rice or pitta if you need more carbs after a hard session.',
+ shops:['Aldi','Lidl','Tesco','Asda'],
+},
+
+// ── BREAKFASTS ───────────────────────────────────────────────────
+{id:'banana-pancakes',nm:'Protein banana pancakes',cat:'breakfast',em:'🥞',
+ c1:'#B86820',c2:'#905010',img:'banana oat pancakes breakfast',
+ tags:['Weekend treat','High protein','Quick cook'],prep:'15 min',
+ mac:{k:590,p:52,c:62,fat:10,f:6},nt:'Per serving · batch batter and cook fresh each morning in 5 min',
+ ings:[
+  {a:10,u:'count',n:'Eggs'},
+  {a:5,u:'count',n:'Ripe bananas'},
+  {a:5,u:'scoops',n:'Whey protein (vanilla)'},
+  {a:250,u:'g',n:'Rolled oats (blended to flour)',w:'Aldi / Lidl'},
+  {a:500,u:'g',n:'0% Greek yogurt (to serve)',w:'Fage / Aldi'},
+  {a:250,u:'g',n:'Blueberries (to serve)',w:'Aldi / Lidl frozen'},
+  {a:5,u:'tsp',n:'Honey'},
+  {a:5,u:'tsp',n:'Coconut oil or spray oil'},
+ ],
+ steps:[
+  {t:'Blend the batter',x:'Blend oats into a fine flour. Add eggs, banana, whey protein, and a pinch of salt. Blend until smooth. Rest 5 mins. Batter keeps 2 days in the fridge.'},
+  {t:'Cook pancakes',x:'Heat a non-stick pan on medium with coconut oil. Pour a small ladleful per pancake. Cook 2 mins until bubbles appear, flip, cook 1 more min. About 3 pancakes per serving.'},
+  {t:'Serve',x:'Stack pancakes and top with Greek yogurt, blueberries, and a drizzle of honey.'},
+ ],
+ notes:'The banana naturally sweetens the batter — riper bananas work best. Blend a full batch of batter on Sunday and cook fresh each morning in under 5 minutes. Swap blueberries for any frozen fruit.',
+ shops:['Aldi','Lidl','Tesco','Asda'],
+},
+{id:'salmon-eggs-toast',nm:'Smoked salmon and eggs on toast',cat:'breakfast',em:'🍳',
+ c1:'#1878A8',c2:'#0E5888',img:'smoked salmon poached eggs toast',
+ tags:['Omega-3','Quick','High protein','No cook eggs optional'],prep:'10 min',
+ mac:{k:490,p:42,c:34,fat:16,f:6},nt:'Per serving · poach, scramble, or fry the eggs — all work',
+ ings:[
+  {a:10,u:'count',n:'Eggs'},
+  {a:500,u:'g',n:'Smoked salmon',w:'Aldi / Lidl — cheapest per 100g'},
+  {a:1,u:'count',n:'Wholemeal loaf (10 slices needed)',w:'Warburtons / Aldi'},
+  {a:5,u:'tbsp',n:'Light cream cheese',w:'Philadelphia Light / Aldi'},
+  {a:1,u:'count',n:'Lemon'},
+  {a:1,u:'bunch',n:'Fresh dill or chives'},
+  {a:1,u:'tsp',n:'Black pepper'},
+ ],
+ steps:[
+  {t:'Toast bread',x:'Toast 2 slices wholemeal per person. Spread each slice with a thin layer of light cream cheese.'},
+  {t:'Cook eggs',x:'Poach eggs in simmering water with a splash of vinegar for 3 mins, or scramble in a dry non-stick pan over low heat. Two eggs per serving.'},
+  {t:'Assemble',x:'Layer smoked salmon on toast. Add eggs on top. Squeeze lemon over everything. Finish with fresh dill and black pepper.'},
+ ],
+ notes:'Smoked salmon from Aldi and Lidl is genuinely good quality and significantly cheaper than supermarkets. Buy in multipacks and freeze what you won\'t use within 3 days. Swapping cream cheese for mashed avocado adds healthy fat but reduces protein slightly.',
+ shops:['Aldi','Lidl','Tesco','Asda'],
+},
+// ── LUNCHES ──────────────────────────────────────────────────────
+{id:'salmon-bowl',nm:'Honey garlic salmon rice bowl',cat:'lunch',em:'🍱',
+ c1:'#287898',c2:'#185878',img:'salmon rice bowl teriyaki honey',
+ tags:['Asian','Omega-3','Batch Sunday','Refreshing'],prep:'30 min',
+ mac:{k:648,p:51,c:62,fat:16,f:5},nt:'Per portion · the honey garlic glaze is the whole meal',
+ ings:[
+  {a:750,u:'g',n:'Salmon fillets (skinless)',w:'Aldi / Lidl — fresh or frozen'},
+  {a:350,u:'g',n:'Brown rice (dry)',w:'Tesco / Asda'},
+  {a:375,u:'g',n:'Frozen edamame',w:'Tesco / Asda'},
+  {a:2,u:'count',n:'Cucumbers'},
+  {a:5,u:'count',n:'Garlic cloves (minced)'},
+  {a:2,u:'tbsp',n:'Honey'},
+  {a:4,u:'tbsp',n:'Light soy sauce'},
+  {a:2,u:'tsp',n:'Sesame oil'},
+  {a:1,u:'tbsp',n:'Rice vinegar'},
+  {a:1,u:'bunch',n:'Spring onions'},
+  {a:3,u:'tbsp',n:'Sesame seeds'},
+ ],
+ steps:[
+  {t:'Cook rice',x:'Rinse rice. Cook with twice volume cold water. Boil, cover, lowest heat 25 mins. Rest 10 mins.'},
+  {t:'Make glaze',x:'Mix honey, soy sauce, sesame oil, rice vinegar, and minced garlic. Spoon half over the salmon. Reserve the rest for drizzling.'},
+  {t:'Cook salmon',x:'Place salmon on a lined baking tray. Bake at 200°C for 12–15 mins until just cooked through and caramelised at the edges. Do not overcook — salmon should still be slightly pink inside.'},
+  {t:'Prep veg',x:'Cook edamame in boiling water 3 mins. Slice cucumber into half-moons. Thinly slice spring onions.'},
+  {t:'Portion',x:'Divide rice, salmon (flaked or whole), edamame and cucumber into containers. Drizzle remaining glaze over. Top with spring onion and sesame seeds.'},
+ ],
+ notes:'Salmon from Aldi and Lidl is some of the best value in UK supermarkets. Frozen salmon fillets defrost overnight in the fridge and work just as well as fresh. The glaze caramelises beautifully — don\'t skip the oven blast at the end.',
+ shops:['Aldi','Lidl','Tesco','Asda'],
+},
+{id:'bulgogi-bowl',nm:'Korean beef bulgogi bowl',cat:'lunch',em:'🥩',
+ c1:'#A83020',c2:'#881010',img:'korean beef bulgogi rice bowl',
+ tags:['Korean','Batch Sunday','Sweet and savoury','High protein'],prep:'35 min',
+ mac:{k:615,p:50,c:58,fat:14,f:4},nt:'Per portion · marinate overnight for dramatically better flavour',
+ ings:[
+  {a:1,u:'kg',n:'Lean beef strips or sirloin (thinly sliced)',w:'Aldi / Lidl'},
+  {a:400,u:'g',n:'Brown rice (dry)'},
+  {a:5,u:'tbsp',n:'Light soy sauce'},
+  {a:2,u:'tbsp',n:'Honey or brown sugar'},
+  {a:10,u:'count',n:'Garlic cloves (minced)'},
+  {a:2,u:'tbsp',n:'Fresh ginger (grated)'},
+  {a:2,u:'tsp',n:'Sesame oil'},
+  {a:1,u:'count',n:'Asian pear or apple (grated, tenderises meat)'},
+  {a:2,u:'count',n:'Cucumbers'},
+  {a:2,u:'count',n:'Carrots (julienned)'},
+  {a:1,u:'bunch',n:'Spring onions'},
+  {a:3,u:'tbsp',n:'Sesame seeds'},
+ ],
+ steps:[
+  {t:'Make marinade',x:'Mix soy sauce, honey, minced garlic, grated ginger, sesame oil, and grated pear in a bowl. The pear contains enzymes that tenderise the beef — don\'t skip it. Add beef strips, coat thoroughly, marinate minimum 30 mins. Overnight is significantly better.'},
+  {t:'Cook rice',x:'Rinse rice. Cook with twice volume cold water. Boil, cover, lowest heat 25 mins. Rest 10 mins.'},
+  {t:'Cook bulgogi',x:'Get a large pan or wok screaming hot. Cook marinated beef in batches — 2 mins per batch maximum. The marinade should caramelise and slightly char. Do not overcrowd the pan.'},
+  {t:'Prep veg',x:'Slice cucumber and julienne carrots. Thinly slice spring onions.'},
+  {t:'Portion',x:'Divide rice and beef between containers. Add cucumber and carrot. Pour any pan juices over the rice. Top with spring onion and sesame seeds.'},
+ ],
+ notes:'The grated pear or apple is the authentic Korean tenderiser — it breaks down muscle fibres and adds subtle sweetness. Without it the beef is fine but less tender. Aldi often has sirloin or rump strips in the meat aisle that work perfectly.',
+ shops:['Aldi','Lidl','Tesco','Asda'],
+},
+{id:'chicken-soup',nm:'Chicken and lentil soup',cat:'lunch',em:'🍵',
+ c1:'#A07020',c2:'#785008',img:'chicken lentil soup broth',
+ tags:['British','Lightest lunch','High fibre','Warming'],prep:'40 min',
+ mac:{k:508,p:44,c:48,fat:8,f:7},nt:'Per portion · lightest lunch on the plan · brilliant on rest days',
+ ings:[
+  {a:750,u:'g',n:'Chicken breasts',w:'Aldi / Lidl'},
+  {a:300,u:'g',n:'Red lentils (dry)',w:'Tesco / Asda'},
+  {a:3,u:'count',n:'Carrots (diced)'},
+  {a:3,u:'count',n:'Celery stalks (diced)'},
+  {a:2,u:'count',n:'Onions (diced)'},
+  {a:6,u:'count',n:'Garlic cloves'},
+  {a:2.5,u:'l',n:'Chicken stock'},
+  {a:2,u:'tsp',n:'Dried thyme'},
+  {a:2,u:'count',n:'Bay leaves'},
+  {a:2,u:'tbsp',n:'Olive oil'},
+  {a:1,u:'bunch',n:'Fresh parsley'},
+ ],
+ steps:[
+  {t:'Sauté the veg',x:'Heat oil in a large pot. Fry onion, carrot, and celery 6–7 mins until soft. Add garlic and thyme, cook 1 min.'},
+  {t:'Add chicken and lentils',x:'Add whole chicken breasts, rinsed lentils, stock, and bay leaves. Bring to boil, reduce to gentle simmer. Cover and cook 25 mins.'},
+  {t:'Shred chicken',x:'Remove chicken, shred with two forks, return to soup. Remove bay leaves. Taste and season.'},
+  {t:'Finish and portion',x:'Stir in fresh parsley. Portion into containers. The soup thickens as it sits — add a splash of water when reheating.'},
+ ],
+ notes:'The lowest calorie lunch on the plan at 508 kcal — perfect on rest days or when you want something light but filling. Lentils dissolve slightly and thicken the broth. Add a slice of wholemeal bread on the side if you need more carbs.',
+ shops:['Aldi','Lidl','Tesco','Asda'],
+},
+// ── DINNERS ──────────────────────────────────────────────────────
+{id:'salmon-lentils',nm:'Salmon with lentils and roasted veg',cat:'dinner',em:'🐟',
+ c1:'#287898',c2:'#185878',img:'salmon fillet roasted vegetables lentils',
+ tags:['Mediterranean','Omega-3','Batch Sunday','High fibre'],prep:'40 min',
+ mac:{k:512,p:48,c:36,fat:16,f:8},nt:'Per portion · omega-3 rich · one of the best dinners for recovery',
+ ings:[
+  {a:900,u:'g',n:'Salmon fillets (skinless)',w:'Aldi / Lidl fresh or frozen'},
+  {a:400,u:'g',n:'Red lentils (dry)',w:'Tesco / Asda'},
+  {a:2,u:'count',n:'Courgettes (chunks)'},
+  {a:2,u:'count',n:'Red peppers (chunks)'},
+  {a:200,u:'g',n:'Cherry tomatoes'},
+  {a:2,u:'count',n:'Red onions (wedges)'},
+  {a:3,u:'tbsp',n:'Olive oil'},
+  {a:5,u:'count',n:'Garlic cloves'},
+  {a:2,u:'count',n:'Lemons'},
+  {a:2,u:'tsp',n:'Smoked paprika'},
+  {a:1,u:'bunch',n:'Fresh basil or parsley'},
+ ],
+ steps:[
+  {t:'Roast the veg',x:'Toss courgette, peppers, cherry tomatoes, and red onion wedges with olive oil, smoked paprika, salt and pepper. Spread on a large tray. Roast at 200°C for 25 mins until edges are charred.'},
+  {t:'Cook lentils',x:'Rinse lentils. Simmer in well-salted water for 15 mins until just tender. Drain and toss with a squeeze of lemon and a glug of olive oil.'},
+  {t:'Cook salmon',x:'Season salmon with salt, pepper, and lemon zest. Add to the veg tray for the last 12–14 mins of roasting. Salmon should be just cooked — slightly translucent in the centre.'},
+  {t:'Portion',x:'Divide lentils, roasted veg, and salmon between 5 containers. Squeeze lemon over each. Scatter fresh herbs. Serve cold or reheated.'},
+ ],
+ notes:'Works brilliantly cold — no reheating needed. The lemon and olive oil keep it tasting fresh even on day 4. Excellent on training days due to the omega-3 content and the anti-inflammatory properties.',
+ shops:['Aldi','Lidl','Tesco','Asda'],
+},
+{id:'chicken-stroganoff',nm:'Chicken and mushroom stroganoff',cat:'dinner',em:'🍄',
+ c1:'#7A6030',c2:'#5A4818',img:'chicken mushroom stroganoff creamy rice',
+ tags:['British','Batch Sunday','Creamy','Highest protein dinner'],prep:'30 min',
+ mac:{k:638,p:65,c:52,fat:14,f:4},nt:'Per portion · Greek yogurt replaces cream — same richness, 5× the protein',
+ ings:[
+  {a:900,u:'g',n:'Chicken breasts (strips)',w:'Aldi / Lidl'},
+  {a:1,u:'kg',n:'Chestnut mushrooms (sliced)',w:'Aldi / Lidl'},
+  {a:750,u:'g',n:'0% Greek yogurt',w:'Fage / Aldi'},
+  {a:2,u:'count',n:'Onions (diced)'},
+  {a:5,u:'count',n:'Garlic cloves (minced)'},
+  {a:2,u:'tsp',n:'Dijon mustard'},
+  {a:2,u:'tsp',n:'Smoked paprika'},
+  {a:300,u:'ml',n:'Chicken stock'},
+  {a:3,u:'tbsp',n:'Olive oil'},
+  {a:1,u:'bunch',n:'Fresh parsley'},
+  {a:400,u:'g',n:'Brown rice (dry)'},
+ ],
+ steps:[
+  {t:'Cook chicken',x:'Season chicken strips with paprika, salt and pepper. Heat oil in a large pan on high. Cook chicken in batches 4–5 mins until golden and cooked through. Remove and set aside.'},
+  {t:'Cook mushrooms and onion',x:'In the same pan, fry diced onion 5 mins until soft. Add mushrooms and cook on high heat 6–7 mins until golden and all moisture has evaporated — this is key to avoid a watery sauce.'},
+  {t:'Build the sauce',x:'Add garlic and Dijon mustard, cook 1 min. Pour in chicken stock, bring to a simmer and reduce by half, about 4 mins. Remove pan from heat.'},
+  {t:'Add yogurt',x:'Let the pan cool slightly (very important — yogurt splits in boiling liquid). Stir in Greek yogurt until smooth. Return chicken to the pan. Reheat gently on very low heat — do not boil.'},
+  {t:'Cook rice and portion',x:'Cook rice separately. Divide rice and stroganoff into containers. Scatter fresh parsley. Reheat gently — the yogurt sauce should just warm through, not boil.'},
+ ],
+ notes:'The single most important technique: remove the pan from heat before adding yogurt, and never let it boil after. At a simmer or lower it stays creamy and thick. At a boil it splits. Genuinely tastes richer and more indulgent than it is.',
+ shops:['Aldi','Lidl','Tesco','Asda','Sainsbury\'s'],
+},
+{id:'lamb-hotpot',nm:'Lamb and lentil hotpot',cat:'dinner',em:'🍲',
+ c1:'#903028',c2:'#701818',img:'lamb hotpot stew rosemary',
+ tags:['British','Batch Sunday','High fibre','Slow cook'],prep:'20 min',
+ mac:{k:514,p:47,c:44,fat:14,f:9},nt:'Per portion · the most comforting dinner on the plan',
+ ings:[
+  {a:1,u:'kg',n:'Lean lamb mince (or diced leg)',w:'Aldi / Lidl'},
+  {a:600,u:'g',n:'Red lentils (dry, rinsed)'},
+  {a:800,u:'g',n:'Tinned chopped tomatoes (2 tins)'},
+  {a:500,u:'ml',n:'Lamb or beef stock'},
+  {a:3,u:'count',n:'Carrots (diced)'},
+  {a:2,u:'count',n:'Onions (diced)'},
+  {a:6,u:'count',n:'Garlic cloves'},
+  {a:2,u:'tsp',n:'Dried rosemary'},
+  {a:1,u:'tsp',n:'Dried thyme'},
+  {a:1,u:'tsp',n:'Ground cumin'},
+  {a:2,u:'tbsp',n:'Olive oil'},
+  {a:1,u:'bunch',n:'Fresh rosemary (optional)'},
+ ],
+ steps:[
+  {t:'Brown the lamb',x:'Heat oil in a large pot on high. Add lamb mince and break apart. Brown thoroughly — don\'t rush this. Drain off any excess fat.'},
+  {t:'Add veg and aromatics',x:'Add diced onion and carrot to the pot. Cook 5 mins. Add minced garlic, dried rosemary, thyme, and cumin. Cook 2 mins stirring.'},
+  {t:'Simmer with lentils',x:'Add rinsed lentils, tinned tomatoes, and stock. Bring to boil, reduce to steady simmer uncovered. Cook 30 mins until lentils are soft and sauce thick. Season to taste.'},
+  {t:'Portion',x:'The hotpot should be thick and rich. Divide into containers — serve as is, with bread, or over rice. Garnish with fresh rosemary if using.'},
+ ],
+ notes:'Lamb lends a deeper, more complex flavour than beef mince to a lentil base. Lean lamb mince from Aldi and Lidl is excellent value. This freezes brilliantly — make a double batch and freeze half. Genuinely tastes better on day 3.',
+ shops:['Aldi','Lidl','Tesco','Asda'],
+},
+{id:'pesto-pasta',nm:'Chicken pesto pasta',cat:'dinner',em:'🍝',
+ c1:'#287838',c2:'#186028',img:'pesto pasta chicken basil parmesan',
+ tags:['Italian','Batch Sunday','Quick','Fresh herb flavour'],prep:'25 min',
+ mac:{k:558,p:54,c:54,fat:14,f:7},nt:'Per portion · homemade pesto made lighter with more basil and less oil',
+ ings:[
+  {a:900,u:'g',n:'Chicken breasts',w:'Aldi / Lidl'},
+  {a:400,u:'g',n:'Wholemeal pasta (dry)',w:'Tesco / Asda'},
+  {a:3,u:'bunches',n:'Fresh basil'},
+  {a:40,u:'g',n:'Pine nuts',w:'Tesco / Asda'},
+  {a:50,u:'g',n:'Parmesan (grated)'},
+  {a:4,u:'tbsp',n:'Olive oil'},
+  {a:3,u:'count',n:'Garlic cloves'},
+  {a:1,u:'count',n:'Lemon'},
+  {a:200,u:'g',n:'Cherry tomatoes'},
+  {a:100,u:'g',n:'Baby spinach',w:'Aldi / Lidl'},
+ ],
+ steps:[
+  {t:'Make the pesto',x:'Blend basil, pine nuts, parmesan, garlic, lemon juice, and olive oil in a food processor or with a hand blender. Add 2–3 tbsp pasta cooking water to thin slightly. Season to taste. Keep some basil leaves for garnish.'},
+  {t:'Cook chicken',x:'Season chicken with salt and pepper. Grill or oven-bake at 200°C for 25 mins. Rest 5 mins then slice.'},
+  {t:'Cook pasta',x:'Cook wholemeal pasta in well-salted boiling water until al dente. Reserve 100ml pasta water before draining.'},
+  {t:'Combine',x:'Toss hot drained pasta with pesto and a splash of pasta water — the starchy water helps the pesto coat every strand. Add halved cherry tomatoes, spinach (wilts from the heat), and sliced chicken.'},
+  {t:'Portion',x:'Divide into 5 containers per person. Drizzle a little olive oil on top to prevent pasta sticking. Top with extra parmesan at serving time.'},
+ ],
+ notes:'The pasta water is not optional — it emulsifies the pesto into a proper sauce rather than a greasy coating. The pesto can be batch-made and keeps 5 days refrigerated with a thin layer of olive oil on top. Also excellent cold as a pasta salad.',
+ shops:['Aldi','Lidl','Tesco','Asda','Sainsbury\'s'],
+},
+// ── SOUPS ─────────────────────────────────────────────────────────
+{id:'tomato-lentil-soup',nm:'Tomato and red lentil soup',cat:'lunch',em:'🍅',
+ c1:'#A02818',c2:'#801008',img:'tomato lentil soup red',
+ tags:['Vegetarian','Batch Sunday','Highest fibre','Light'],prep:'30 min',
+ mac:{k:378,p:22,c:56,fat:6,f:16},nt:'Per portion · highest fibre meal on the plan · 16g fibre',
+ ings:[
+  {a:200,u:'g',n:'Red lentils (dry, rinsed)'},
+  {a:800,u:'g',n:'Tinned chopped tomatoes (2 tins)',w:'Aldi own-brand'},
+  {a:1,u:'l',n:'Vegetable stock'},
+  {a:2,u:'count',n:'Onions (diced)'},
+  {a:6,u:'count',n:'Garlic cloves'},
+  {a:2,u:'tsp',n:'Ground cumin'},
+  {a:2,u:'tsp',n:'Smoked paprika'},
+  {a:1,u:'tsp',n:'Turmeric'},
+  {a:2,u:'tbsp',n:'Olive oil'},
+  {a:1,u:'count',n:'Lemon'},
+  {a:5,u:'count',n:'Slices wholemeal bread (to serve, optional)',w:'Warburtons / Aldi'},
+ ],
+ steps:[
+  {t:'Build the base',x:'Heat oil in a large pot. Fry diced onion 7 mins until soft and golden. Add minced garlic, cumin, paprika, and turmeric. Cook 2 mins stirring constantly.'},
+  {t:'Add lentils and tomatoes',x:'Add rinsed lentils, tinned tomatoes, and stock. Bring to a boil, then reduce to a steady simmer uncovered. Cook 20–25 mins until lentils have completely dissolved and the soup is thick.'},
+  {t:'Blend (optional)',x:'Blend half the soup with a hand blender for a smoother texture while keeping some body. Or leave chunky.'},
+  {t:'Finish and portion',x:'Squeeze lemon juice over the soup. Taste and adjust seasoning — it should be bold and smoky. Portion into 5 containers. Serve with wholemeal bread.'},
+ ],
+ notes:'At 16g fibre this is the highest fibre meal on the entire plan. The lentils dissolve completely making it creamy without any cream. Keeps 5 days refrigerated and freezes brilliantly. A squeeze of lemon at the end is essential — it lifts everything.',
+ shops:['Aldi','Lidl','Tesco','Asda'],
+},
+{id:'squash-soup',nm:'Butternut squash and lentil soup',cat:'lunch',em:'🎃',
+ c1:'#C07820',c2:'#A05808',img:'butternut squash soup autumn',
+ tags:['Vegetarian','Batch Sunday','High fibre','Warming'],prep:'40 min',
+ mac:{k:362,p:18,c:54,fat:8,f:12},nt:'Per portion · naturally sweet and warming',
+ ings:[
+  {a:1,u:'kg',n:'Butternut squash (peeled, cubed)',w:'Aldi / Lidl'},
+  {a:150,u:'g',n:'Red lentils (dry, rinsed)'},
+  {a:400,u:'ml',n:'Light coconut milk',w:'Blue Dragon — Tesco'},
+  {a:800,u:'ml',n:'Vegetable stock'},
+  {a:2,u:'count',n:'Onions (diced)'},
+  {a:4,u:'count',n:'Garlic cloves'},
+  {a:2,u:'tsp',n:'Fresh ginger (grated)'},
+  {a:2,u:'tsp',n:'Medium curry powder'},
+  {a:1,u:'tsp',n:'Turmeric'},
+  {a:2,u:'tbsp',n:'Olive oil'},
+  {a:3,u:'count',n:'Limes'},
+ ],
+ steps:[
+  {t:'Roast the squash',x:'Toss cubed butternut squash with olive oil, salt and pepper. Roast at 200°C for 25 mins until golden. Roasting first deepens the sweetness significantly.'},
+  {t:'Build the base',x:'In a large pot, fry onion 5 mins. Add garlic, ginger, curry powder, and turmeric. Cook 2 mins.'},
+  {t:'Simmer with lentils',x:'Add rinsed lentils, roasted squash, coconut milk and stock. Simmer 20 mins until lentils have dissolved.'},
+  {t:'Blend and finish',x:'Blend until completely smooth with a hand blender. Squeeze lime juice in and taste. Adjust seasoning. Portion into containers.'},
+ ],
+ notes:'Roasting the squash before adding to the soup is the difference between a flat and a deeply flavoured result. The lentils thicken it without needing cream. Keeps 5 days and freezes well — freeze in portion-sized containers.',
+ shops:['Aldi','Lidl','Tesco','Asda'],
+},
+{id:'chicken-sweetcorn-soup',nm:'Chicken and sweetcorn soup',cat:'lunch',em:'🌽',
+ c1:'#C8A020',c2:'#A07808',img:'chicken sweetcorn soup chinese broth',
+ tags:['Chinese','Batch Sunday','Light','Quick'],prep:'25 min',
+ mac:{k:382,p:40,c:32,fat:6,f:4},nt:'Per portion · lightest lunch · Chinese takeaway staple made clean',
+ ings:[
+  {a:600,u:'g',n:'Chicken breasts (shredded)',w:'Aldi / Lidl'},
+  {a:400,u:'g',n:'Sweetcorn (tinned or frozen)',w:'Aldi / Lidl'},
+  {a:4,u:'count',n:'Egg whites'},
+  {a:2,u:'l',n:'Chicken stock'},
+  {a:3,u:'tbsp',n:'Light soy sauce'},
+  {a:2,u:'tsp',n:'Fresh ginger (grated)'},
+  {a:3,u:'tbsp',n:'Cornflour (mixed with 3 tbsp cold water)'},
+  {a:1,u:'tbsp',n:'Sesame oil'},
+  {a:1,u:'bunch',n:'Spring onions'},
+  {a:1,u:'tsp',n:'White pepper'},
+ ],
+ steps:[
+  {t:'Poach chicken',x:'Simmer chicken breasts in the stock for 15 mins. Remove and shred with two forks. Return shredded chicken to the stock.'},
+  {t:'Add sweetcorn and flavour',x:'Add sweetcorn, soy sauce, ginger, and white pepper to the stock. Bring to a simmer.'},
+  {t:'Thicken',x:'Stir cornflour mixture into the simmering soup. Stir constantly for 2 mins until the soup thickens slightly.'},
+  {t:'Add egg whites',x:'Slowly drizzle beaten egg whites into the soup while stirring in a circular motion — this creates the signature egg ribbons. Add sesame oil and sliced spring onions.'},
+  {t:'Portion',x:'Ladle into 5 containers. Best reheated gently on the hob or microwave with a splash of water. Scatter extra spring onion before serving.'},
+ ],
+ notes:'The egg white ribbons are the defining feature — pour them in very slowly with constant stirring. White pepper rather than black is important for authentic flavour. This is one of the fastest batch-cook lunches on the plan.',
+ shops:['Aldi','Lidl','Tesco','Asda'],
+},
+{id:'tuscan-chicken-soup',nm:'Tuscan chicken and lentil soup',cat:'dinner',em:'🍲',
+ c1:'#A03020',c2:'#801010',img:'tuscan chicken soup spinach tomato',
+ tags:['Italian','Batch Sunday','High fibre','One pot'],prep:'35 min',
+ mac:{k:518,p:52,c:40,fat:10,f:10},nt:'Per portion · Italian sun-dried tomato and spinach broth',
+ ings:[
+  {a:750,u:'g',n:'Chicken thighs (boneless, skinless)',w:'Aldi / Lidl'},
+  {a:200,u:'g',n:'Red lentils (dry, rinsed)'},
+  {a:300,u:'g',n:'Cherry tomatoes'},
+  {a:150,u:'g',n:'Fresh spinach',w:'Aldi / Lidl'},
+  {a:6,u:'count',n:'Garlic cloves'},
+  {a:1.5,u:'l',n:'Chicken stock'},
+  {a:2,u:'tbsp',n:'Olive oil'},
+  {a:2,u:'tsp',n:'Dried Italian herbs'},
+  {a:1,u:'tsp',n:'Smoked paprika'},
+  {a:30,u:'g',n:'Parmesan (grated, to serve)'},
+  {a:1,u:'bunch',n:'Fresh basil'},
+ ],
+ steps:[
+  {t:'Brown the chicken',x:'Season chicken thighs with salt, pepper, and paprika. Heat oil in a large pot on high. Brown 3 mins each side until golden. Remove and set aside.'},
+  {t:'Build flavour',x:'In the same pot, add whole garlic cloves and cherry tomatoes. Cook 2 mins until tomatoes start to burst. Add Italian herbs.'},
+  {t:'Simmer',x:'Add lentils, stock, and browned chicken. Bring to boil, reduce to simmer. Cover and cook 25 mins until chicken is tender and lentils have dissolved into the broth.'},
+  {t:'Shred and finish',x:'Remove chicken and shred. Return to pot. Add spinach — it wilts in 1 min. Squeeze out any whole garlic cloves and stir in. Season to taste.'},
+  {t:'Portion',x:'Ladle into 5 containers. Add parmesan and fresh basil at serving time. Excellent with crusty bread.'},
+ ],
+ notes:'The garlic cloves cooked whole become soft and mellow — squeeze them out into the broth for a deep, rich flavour. Spinach can be doubled without affecting the overall taste.',
+ shops:['Aldi','Lidl','Tesco','Asda'],
+},
+{id:'beef-veg-soup',nm:'Hearty beef and vegetable soup',cat:'dinner',em:'🥕',
+ c1:'#904030',c2:'#702010',img:'beef vegetable soup hearty chunky',
+ tags:['British','Batch Sunday','High protein','Chunky'],prep:'25 min',
+ mac:{k:478,p:42,c:40,fat:12,f:10},nt:'Per portion · the most filling soup on the plan',
+ ings:[
+  {a:750,u:'g',n:'5% beef mince',w:'Aldi / Lidl'},
+  {a:3,u:'count',n:'Carrots (diced)'},
+  {a:3,u:'count',n:'Celery stalks (diced)'},
+  {a:2,u:'count',n:'Onions (diced)'},
+  {a:400,u:'g',n:'Potatoes (peeled, diced)'},
+  {a:200,u:'g',n:'Green beans or frozen mixed veg'},
+  {a:400,u:'g',n:'Tinned chopped tomatoes'},
+  {a:1.5,u:'l',n:'Beef stock'},
+  {a:2,u:'tbsp',n:'Tomato purée'},
+  {a:2,u:'tsp',n:'Mixed herbs'},
+  {a:2,u:'tbsp',n:'Olive oil'},
+ ],
+ steps:[
+  {t:'Brown beef',x:'Heat oil in a large pot on high. Add beef mince and break apart. Brown thoroughly, 6–7 mins. Drain off any excess fat.'},
+  {t:'Add veg',x:'Add diced onion, carrot, and celery. Cook 5 mins. Stir in tomato purée and mixed herbs.'},
+  {t:'Simmer',x:'Add potatoes, tinned tomatoes, stock. Bring to boil, reduce to steady simmer. Cook 20 mins until potatoes are tender.'},
+  {t:'Add green veg and portion',x:'Add green beans or mixed veg for the last 5 mins. Season well. Portion into 5 containers.'},
+ ],
+ notes:'This is the heartiest soup on the plan — essentially a chunky stew. The potato adds body and makes it genuinely filling. Use diced beef shin or braising steak instead of mince for even more depth if you have the time.',
+ shops:['Aldi','Lidl','Tesco','Asda'],
+},
+{id:'thai-coconut-soup',nm:'Thai coconut chicken soup',cat:'dinner',em:'🥥',
+ c1:'#207848',c2:'#106030',img:'thai coconut chicken soup tom kha',
+ tags:['Thai','Batch Sunday','Light','Aromatic'],prep:'30 min',
+ mac:{k:418,p:40,c:12,fat:22,f:3},nt:'Per portion · lowest carb dinner on the plan · rich fragrant broth',
+ ings:[
+  {a:750,u:'g',n:'Chicken breasts (sliced thin)',w:'Aldi / Lidl'},
+  {a:800,u:'ml',n:'Light coconut milk (2 tins)',w:'Blue Dragon — Tesco'},
+  {a:300,u:'g',n:'Mushrooms (sliced)',w:'Aldi / Lidl'},
+  {a:500,u:'ml',n:'Chicken stock'},
+  {a:2,u:'count',n:'Lemongrass stalks (bruised)'},
+  {a:3,u:'tbsp',n:'Fresh ginger (sliced into coins)'},
+  {a:4,u:'count',n:'Limes'},
+  {a:3,u:'tbsp',n:'Fish sauce'},
+  {a:2,u:'count',n:'Red chillies (sliced)'},
+  {a:2,u:'bunches',n:'Fresh coriander'},
+  {a:1,u:'bunch',n:'Spring onions'},
+ ],
+ steps:[
+  {t:'Build the broth',x:'Combine coconut milk, stock, lemongrass, and sliced ginger in a large pot. Bring to a simmer and cook 10 mins to infuse. Remove lemongrass.'},
+  {t:'Cook chicken and mushrooms',x:'Add sliced chicken and mushrooms to the simmering broth. Cook 8–10 mins until chicken is cooked through.'},
+  {t:'Season',x:'Add fish sauce, lime juice, and half the chilli. Taste — it should be salty, sour, fragrant, and slightly spicy. Adjust with more fish sauce (salt) or lime (sour).'},
+  {t:'Finish and portion',x:'Ladle into 5 containers. Add coriander, spring onion, and remaining chilli at serving time.'},
+ ],
+ notes:'Lowest carb dinner on the plan at just 12g carbs — ideal for training days when you have had a high-carb lunch. The broth infusion is the entire flavour profile — don\'t skip the 10 minute simmering with lemongrass and ginger.',
+ shops:['Tesco','Asda','Sainsbury\'s','Asian supermarkets'],
+},
+// ── BREAKFASTS ────────────────────────────────────────────────────
+{id:'egg-feta-scramble',nm:'Scrambled eggs with spinach and feta',cat:'breakfast',em:'🍳',
+ c1:'#A07020',c2:'#786010',img:'scrambled eggs spinach feta toast',
+ tags:['Savoury','Quick cook','High protein','No meal prep needed'],prep:'10 min',
+ mac:{k:418,p:38,c:30,fat:14,f:5},nt:'Per serving · fastest cooked breakfast on the plan · 10 mins',
+ ings:[
+  {a:10,u:'count',n:'Eggs (whole)'},
+  {a:250,u:'ml',n:'Egg whites (carton)',w:'Tesco / Asda'},
+  {a:250,u:'g',n:'Fresh spinach',w:'Aldi / Lidl'},
+  {a:150,u:'g',n:'Reduced-fat feta (crumbled)',w:'Tesco / Asda'},
+  {a:250,u:'g',n:'Cherry tomatoes (halved)'},
+  {a:10,u:'count',n:'Slices wholemeal bread (2 per serving)'},
+  {a:2,u:'tsp',n:'Olive oil'},
+  {a:1,u:'tsp',n:'Black pepper'},
+ ],
+ steps:[
+  {t:'Wilt the spinach',x:'Heat olive oil in a non-stick pan. Add spinach and toss until wilted, about 1 min. Push to the side of the pan.'},
+  {t:'Scramble the eggs',x:'Whisk 2 eggs and 50ml egg whites per serving together. Pour into the pan over medium-low heat. Stir gently with a spatula — pull the eggs slowly from the edges. Remove from heat while still slightly underdone.'},
+  {t:'Add feta and serve',x:'Immediately crumble feta over the eggs — it melts slightly from the heat. Season with black pepper. Serve on toasted wholemeal bread with halved cherry tomatoes on the side.'},
+ ],
+ notes:'Cook low and slow — eggs scrambled over high heat become rubbery and watery. The residual heat finishes them perfectly if you pull the pan off just before done. Don\'t batch these — cook fresh each morning in under 10 minutes.',
+ shops:['Aldi','Lidl','Tesco','Asda'],
+},
+{id:'pb-oats',nm:'Peanut butter banana protein oats',cat:'breakfast',em:'🥜',
+ c1:'#A07020',c2:'#785010',img:'peanut butter banana oatmeal protein',
+ tags:['Warm breakfast','Batch Sunday','High calorie','Training day'],prep:'10 min',
+ mac:{k:622,p:48,c:72,fat:14,f:7},nt:'Per serving · highest calorie breakfast · best on heavy training days',
+ ings:[
+  {a:300,u:'g',n:'Rolled oats',w:'Quaker / Aldi'},
+  {a:10,u:'tbsp',n:'Natural peanut butter',w:'Meridian / Aldi'},
+  {a:5,u:'count',n:'Ripe bananas'},
+  {a:5,u:'scoops',n:'Whey protein (chocolate or vanilla)'},
+  {a:1,u:'l',n:'Semi-skimmed milk',w:'Aldi / Lidl'},
+  {a:500,u:'ml',n:'Water'},
+  {a:5,u:'tsp',n:'Honey'},
+  {a:1,u:'tsp',n:'Cinnamon'},
+ ],
+ steps:[
+  {t:'Cook the oats',x:'Combine 60g oats with 100ml milk and 100ml water per serving. Cook in a pan over medium heat, stirring constantly, for 4–5 mins until thick and creamy. Or microwave 3 mins, stirring once.'},
+  {t:'Mix in protein',x:'Remove from heat. Stir in 1 scoop whey protein and cinnamon until smooth. The residual heat dissolves it perfectly.'},
+  {t:'Top and serve',x:'Pour into a bowl. Add 2 tbsp peanut butter, slice a banana on top, drizzle honey. Eat immediately.'},
+ ],
+ notes:'This cannot be pre-made — oats go gluggy overnight with milk. Cook fresh in 5 minutes. The protein powder must be stirred in off the heat or it clumps. Natural peanut butter (just peanuts, no palm oil or sugar) from Aldi is genuinely one of the best on the market.',
+ shops:['Aldi','Lidl','Tesco','Asda'],
+},
+{id:'yogurt-parfait',nm:'Greek yogurt protein parfait',cat:'breakfast',em:'🫙',
+ c1:'#8838A8',c2:'#682888',img:'greek yogurt parfait granola berries layers',
+ tags:['No cook','Assembly only','Quick','High protein'],prep:'3 min',
+ mac:{k:492,p:44,c:56,fat:8,f:6},nt:'Per serving · fastest breakfast on the plan · 3 minutes',
+ ings:[
+  {a:1.25,u:'kg',n:'0% Greek yogurt',w:'Fage / Aldi Greekish'},
+  {a:5,u:'scoops',n:'Whey protein (vanilla)'},
+  {a:150,u:'g',n:'Low-sugar granola',w:'Jordans / Aldi'},
+  {a:500,u:'g',n:'Mixed berries (fresh or frozen)',w:'Aldi / Lidl'},
+  {a:5,u:'tbsp',n:'Chia seeds'},
+  {a:5,u:'tsp',n:'Honey'},
+ ],
+ steps:[
+  {t:'Mix yogurt',x:'Stir 1 scoop whey protein into 250g Greek yogurt until smooth. It should be thick and creamy.'},
+  {t:'Layer',x:'In a jar or bowl: yogurt first, then 30g granola, then berries, then a sprinkle of chia seeds and a drizzle of honey.'},
+  {t:'Prep ahead',x:'Batch 5 jars on Sunday — keep the granola separate and add at serving time to keep it crunchy.'},
+ ],
+ notes:'The granola goes soft overnight if pre-assembled — keep it in a small bag and add each morning. Frozen berries work just as well as fresh and are cheaper. This is the fastest breakfast on the plan, taking under 3 minutes to assemble.',
+ shops:['Aldi','Lidl','Tesco','Asda','Sainsbury\'s'],
+},
+// ── LUNCHES ───────────────────────────────────────────────────────
+{id:'prawn-noodle-salad',nm:'Vietnamese prawn noodle salad',cat:'lunch',em:'🍜',
+ c1:'#207848',c2:'#106030',img:'vietnamese prawn noodle salad fresh',
+ tags:['Vietnamese','No cook','Refreshing','High protein'],prep:'20 min',
+ mac:{k:478,p:42,c:56,fat:6,f:5},nt:'Per portion · bright, fresh, zero cooking after batch prep',
+ ings:[
+  {a:750,u:'g',n:'Cooked king prawns',w:'Aldi / Lidl frozen'},
+  {a:200,u:'g',n:'Rice vermicelli noodles',w:'Asian supermarkets / Tesco'},
+  {a:2,u:'count',n:'Cucumbers'},
+  {a:2,u:'count',n:'Carrots (julienned)'},
+  {a:2,u:'bunches',n:'Fresh coriander'},
+  {a:1,u:'bunch',n:'Fresh mint'},
+  {a:5,u:'count',n:'Limes'},
+  {a:3,u:'tbsp',n:'Fish sauce'},
+  {a:2,u:'tbsp',n:'Honey or sugar'},
+  {a:2,u:'count',n:'Red chillies (finely sliced)'},
+  {a:2,u:'tsp',n:'Sesame oil'},
+  {a:1,u:'bunch',n:'Spring onions'},
+ ],
+ steps:[
+  {t:'Soak noodles',x:'Place rice vermicelli in a bowl and cover with boiling water. Soak 5 mins until tender. Drain, rinse under cold water, and snip into shorter lengths with scissors.'},
+  {t:'Make dressing',x:'Combine lime juice, fish sauce, honey, chilli, and sesame oil. Taste — it should be sour, salty, slightly sweet, and spicy. Adjust to preference.'},
+  {t:'Prep veg',x:'Julienne carrots, slice cucumber into half-moons, thinly slice spring onions. Pick coriander and mint leaves.'},
+  {t:'Assemble and portion',x:'Toss noodles, prawns, carrot, and cucumber with dressing. Divide into 5 containers. Top with coriander, mint, and spring onion. Keep extra dressing on the side.'},
+ ],
+ notes:'Dress just before eating if possible — the noodles absorb the dressing quickly and can go dry by day 3. Frozen prawns from Aldi defrosted overnight work perfectly. Add 50g crushed peanuts for texture and extra protein.',
+ shops:['Aldi','Lidl','Tesco','Asian supermarkets'],
+},
+{id:'tuna-lentil-salad',nm:'Mediterranean tuna and lentil salad',cat:'lunch',em:'🐟',
+ c1:'#186088',c2:'#0C4068',img:'tuna lentil salad mediterranean olive',
+ tags:['Mediterranean','No cook','High protein','Assembly only'],prep:'15 min',
+ mac:{k:520,p:48,c:44,fat:14,f:10},nt:'Per portion · no cooking needed if using tinned lentils',
+ ings:[
+  {a:750,u:'g',n:'Tinned tuna in spring water',w:'5 × 145g tins — Aldi / Lidl'},
+  {a:250,u:'g',n:'Green or brown lentils (dry)',w:'Or 2 × 400g tins cooked'},
+  {a:250,u:'g',n:'Cherry tomatoes (halved)'},
+  {a:1,u:'count',n:'Cucumber (diced)'},
+  {a:1,u:'count',n:'Red onion (finely diced)'},
+  {a:75,u:'g',n:'Olives (pitted)',w:'Aldi / Lidl'},
+  {a:4,u:'tbsp',n:'Extra virgin olive oil'},
+  {a:2,u:'count',n:'Lemons'},
+  {a:1,u:'bunch',n:'Fresh parsley'},
+  {a:1,u:'tsp',n:'Dijon mustard'},
+ ],
+ steps:[
+  {t:'Cook lentils (if using dry)',x:'Simmer green lentils in well-salted water for 20–25 mins until tender but still holding their shape. Drain and cool.'},
+  {t:'Make dressing',x:'Whisk olive oil, lemon juice, Dijon mustard, salt and pepper until emulsified.'},
+  {t:'Assemble',x:'In a large bowl, combine lentils, drained tuna (flaked), cherry tomatoes, cucumber, red onion, and olives. Pour dressing over and toss well.'},
+  {t:'Portion',x:'Divide into 5 containers. Scatter fresh parsley over each. Keeps 4 days refrigerated.'},
+ ],
+ notes:'If using tinned lentils (2 × 400g tins), this requires zero cooking — pure assembly. Tinned tuna in spring water from Aldi is excellent value at one of the lowest cost-per-gram-of-protein of any food. Dress at serving time on days 3–4 if possible.',
+ shops:['Aldi','Lidl','Tesco','Asda'],
+},
+{id:'bbq-chicken-bowl',nm:'BBQ chicken and sweetcorn rice bowl',cat:'lunch',em:'🍗',
+ c1:'#C05020',c2:'#A03010',img:'bbq chicken rice bowl sweetcorn',
+ tags:['American','Batch Sunday','Crowd pleaser','High protein'],prep:'30 min',
+ mac:{k:638,p:60,c:68,fat:10,f:5},nt:'Per portion · the most crowd-pleasing lunch on the plan',
+ ings:[
+  {a:750,u:'g',n:'Chicken breasts',w:'Aldi / Lidl'},
+  {a:100,u:'ml',n:'BBQ sauce (low sugar)',w:'Aldi / Lidl own-brand'},
+  {a:350,u:'g',n:'Brown rice (dry)'},
+  {a:300,u:'g',n:'Sweetcorn (tinned or frozen)',w:'Aldi / Lidl'},
+  {a:2,u:'count',n:'Red onions (diced)'},
+  {a:100,u:'g',n:'Reduced-fat cheddar (grated)',w:'Aldi / Lidl'},
+  {a:250,u:'g',n:'0% Greek yogurt (sour cream sub)'},
+  {a:250,u:'g',n:'Cherry tomatoes'},
+  {a:1,u:'bunch',n:'Fresh coriander'},
+ ],
+ steps:[
+  {t:'Cook rice',x:'Rinse rice. Cook with twice volume cold water. Boil, cover, lowest heat 25 mins. Rest 10 mins.'},
+  {t:'BBQ chicken',x:'Coat chicken breasts in BBQ sauce. Bake at 200°C for 25–30 mins, basting once with extra sauce at 15 mins. Rest 5 mins then slice.'},
+  {t:'Prep toppings',x:'Drain sweetcorn. Dice red onion. Halve cherry tomatoes.'},
+  {t:'Portion',x:'Divide rice between 5 containers. Top with sliced BBQ chicken, sweetcorn, red onion, and cherry tomatoes. Add a tbsp of grated cheddar. Keep Greek yogurt in a separate small pot to add at lunchtime.'},
+ ],
+ notes:'Low-sugar BBQ sauce from Aldi is genuinely good. Greek yogurt as the sour cream replacement: same tang, 5× the protein, fraction of the fat. This is consistently the most popular bowl for people who struggle to eat "clean" food — it just tastes like a treat.',
+ shops:['Aldi','Lidl','Tesco','Asda'],
+},
+// ── DINNERS ───────────────────────────────────────────────────────
+{id:'prawn-stirfry',nm:'King prawn and vegetable stir fry',cat:'dinner',em:'🦐',
+ c1:'#C04828',c2:'#A03010',img:'prawn stir fry vegetables wok noodles',
+ tags:['Asian','Cook fresh','10 minutes','High protein'],prep:'10 min',
+ mac:{k:478,p:44,c:44,fat:10,f:8},nt:'Per portion · cook fresh nightly · 10 minutes · highest protein seafood option',
+ ings:[
+  {a:1,u:'kg',n:'Raw king prawns (deveined)',w:'Aldi / Lidl frozen — defrost overnight'},
+  {a:1,u:'kg',n:'Stir fry veg mix',w:'Aldi / Lidl'},
+  {a:400,u:'g',n:'Egg noodles or brown rice (dry)'},
+  {a:3,u:'tbsp',n:'Light soy sauce',w:'Kikkoman'},
+  {a:2,u:'tbsp',n:'Oyster sauce',w:'Blue Dragon — Tesco'},
+  {a:1,u:'tbsp',n:'Honey'},
+  {a:5,u:'count',n:'Garlic cloves (minced)'},
+  {a:2,u:'tsp',n:'Fresh ginger (grated)'},
+  {a:2,u:'tsp',n:'Sesame oil'},
+  {a:3,u:'tbsp',n:'Vegetable oil'},
+  {a:1,u:'bunch',n:'Spring onions'},
+ ],
+ steps:[
+  {t:'Mix sauce',x:'Combine soy sauce, oyster sauce, honey, and sesame oil in a small bowl. Set aside.'},
+  {t:'High heat',x:'Get a wok or large pan over the highest flame you have for at least 2 mins. Prawns cook fast — everything needs to be ready before you start.'},
+  {t:'Cook prawns',x:'Add oil and prawns in a single layer. Cook 90 seconds without stirring until pink, flip, cook 30 seconds more. Remove immediately — overcooked prawns become rubbery.'},
+  {t:'Stir fry veg',x:'Add garlic and ginger (30 secs), then veg (3–4 mins). Return prawns, add sauce, toss 1 min.'},
+  {t:'Serve',x:'Over noodles or rice. Top with spring onion. Eat immediately — best fresh.'},
+ ],
+ notes:'Raw prawns (frozen, defrosted) are far superior to pre-cooked for stir frying. Frozen raw king prawns from Aldi are excellent value. The honey in the sauce caramelises and creates a slightly sticky glaze. Like the beef stir fry, this is a fresh daily cook rather than a batch meal.',
+ shops:['Aldi','Lidl','Tesco','Asda'],
+},
+{id:'fajita-bowl',nm:'Chicken fajita rice bowl',cat:'dinner',em:'🫔',
+ c1:'#C05010',c2:'#A03800',img:'chicken fajita bowl rice peppers',
+ tags:['Tex-Mex','Batch Sunday','Crowd pleaser','High protein'],prep:'35 min',
+ mac:{k:582,p:56,c:60,fat:10,f:6},nt:'Per portion · all the flavour of fajitas as a weekly batch bowl',
+ ings:[
+  {a:900,u:'g',n:'Chicken breasts (sliced in strips)'},
+  {a:400,u:'g',n:'Brown rice (dry)'},
+  {a:3,u:'count',n:'Mixed peppers (red, yellow, green)'},
+  {a:2,u:'count',n:'Red onions (sliced)'},
+  {a:3,u:'tsp',n:'Ground cumin'},
+  {a:2,u:'tsp',n:'Smoked paprika'},
+  {a:1,u:'tsp',n:'Garlic powder'},
+  {a:1,u:'tsp',n:'Dried oregano'},
+  {a:3,u:'tbsp',n:'Olive oil'},
+  {a:3,u:'count',n:'Limes'},
+  {a:250,u:'g',n:'0% Greek yogurt (sour cream sub)'},
+  {a:200,u:'ml',n:'Salsa (shop-bought)',w:'Aldi / Lidl'},
+  {a:1,u:'bunch',n:'Fresh coriander'},
+ ],
+ steps:[
+  {t:'Make spice rub and cook rice',x:'Mix cumin, paprika, garlic powder, oregano, salt and pepper. Rinse and cook rice. Toss chicken strips and sliced peppers and onion in olive oil and spice rub.'},
+  {t:'Roast everything',x:'Spread chicken, peppers, and onion across 1–2 baking trays. Roast at 220°C for 20–25 mins until the chicken is cooked and the peppers and onion are slightly charred at the edges.'},
+  {t:'Squeeze lime',x:'Squeeze lime juice over the tray straight from the oven. The hot surface caramelises the lime and deepens the flavour.'},
+  {t:'Portion',x:'Divide rice between 5 containers. Top with chicken and pepper mixture. Keep Greek yogurt and salsa in separate small pots — add at serving time.'},
+ ],
+ notes:'The high oven temperature (220°C rather than 180°C) is intentional — the char on the peppers and onion is the flavour. Greek yogurt instead of sour cream: identical cooling effect, dramatically better protein. Excellent cold for lunch.',
+ shops:['Aldi','Lidl','Tesco','Asda'],
+},
+{id:'lamb-saag',nm:'Lamb saag with brown rice',cat:'dinner',em:'🌿',
+ c1:'#287840',c2:'#185828',img:'lamb saag mince spinach indian',
+ tags:['Indian','Batch Sunday','High iron','Earthy'],prep:'35 min',
+ mac:{k:598,p:52,c:56,fat:16,f:8},nt:'Per portion · rich spiced lamb and spinach — the most nutrient-dense dinner',
+ ings:[
+  {a:750,u:'g',n:'Lean lamb mince',w:'Aldi / Lidl'},
+  {a:400,u:'g',n:'Frozen spinach (defrosted, squeezed dry)',w:'Aldi / Lidl'},
+  {a:2,u:'count',n:'Onions (diced)'},
+  {a:8,u:'count',n:'Garlic cloves'},
+  {a:3,u:'tbsp',n:'Fresh ginger (grated)'},
+  {a:3,u:'tsp',n:'Ground cumin'},
+  {a:3,u:'tsp',n:'Ground coriander'},
+  {a:2,u:'tsp',n:'Turmeric'},
+  {a:2,u:'tsp',n:'Garam masala'},
+  {a:1,u:'tsp',n:'Chilli powder'},
+  {a:400,u:'g',n:'Tinned chopped tomatoes'},
+  {a:2,u:'tbsp',n:'Vegetable oil'},
+  {a:400,u:'g',n:'Brown rice (dry)'},
+  {a:200,u:'g',n:'0% Greek yogurt (to serve)'},
+  {a:1,u:'bunch',n:'Fresh coriander'},
+ ],
+ steps:[
+  {t:'Fry aromatics',x:'Heat oil. Fry diced onion 7 mins until golden. Add minced garlic and grated ginger, cook 2 mins.'},
+  {t:'Toast spices',x:'Add cumin, coriander, turmeric, chilli powder. Stir constantly 2 mins until very fragrant.'},
+  {t:'Brown lamb',x:'Add lamb mince on high heat. Break apart and cook until browned all over. Drain off excess fat if needed.'},
+  {t:'Add tomatoes and spinach',x:'Add tinned tomatoes and simmer 10 mins. Add squeezed, defrosted spinach (it should be as dry as possible). Stir in garam masala. Cook 5 more mins.'},
+  {t:'Cook rice and portion',x:'Cook rice separately. Divide saag and rice into 5 containers. Top with fresh coriander. Serve with Greek yogurt on the side.'},
+ ],
+ notes:'Frozen spinach is better than fresh here — it has more concentrated flavour and breaks down beautifully into the sauce. Squeezing all the water out before adding is crucial; excess water makes the sauce thin. Lamb has a higher iron content than beef, making this one of the most nutrient-dense dinners on the plan.',
+ shops:['Aldi','Lidl','Tesco','Asda'],
+},
+];
+
+// ─── STATE ─────────────────────────────────────────────────────────
+let unit='metric',cat='all',active=null,people=1;
+
+// ─── UNIT CONVERSION ──────────────────────────────────────────────
+const NON=['tbsp','tsp','scoops','bunch','bunches','cans','biscuits','count'];
+function fmt(a,u){
+  const v=a*people;
+  if(NON.includes(u)){
+    const d=v%1===0?v:parseFloat(v.toFixed(1));
+    return u==='count'?String(d):`${d} ${u}`;
+  }
+  if(unit==='metric'){
+    if(u==='g'&&v>=1000)return `${parseFloat((v/1000).toFixed(1))} kg`;
+    if(u==='ml'&&v>=1000)return `${parseFloat((v/1000).toFixed(1))} l`;
+    const d=v%1===0?v:parseFloat(v.toFixed(1));
+    return `${d} ${u}`;
+  }
+  if(u==='g'){return v>=453.6?`${(v/453.6).toFixed(1)} lb`:`${Math.round(v/28.35)} oz`;}
+  if(u==='kg')return `${(v*2.205).toFixed(2)} lb`;
+  if(u==='ml'){return v>=284?`${(v/568.3).toFixed(1)} pt`:`${Math.round(v/29.57)} fl oz`;}
+  if(u==='l')return `${(v*1.76).toFixed(1)} pt`;
+  const d=v%1===0?v:parseFloat(v.toFixed(1));
+  return `${d} ${u}`;
+}
+function pfmt(p){
+  if(p===0.5)return '\u00BD';
+  if(p===1.5)return '1\u00BD';
+  if(p===2.5)return '2\u00BD';
+  if(p===3.5)return '3\u00BD';
+  if(p===4.5)return '4\u00BD';
+  return p%1===0?String(p):p.toFixed(1);
+}
+function pstr(p){
+  const tot=p*5;
+  const exact=tot%1===0;
+  const ts=exact?String(tot):`${Math.floor(tot)}\u2013${Math.ceil(tot)}`;
+  const who=p<=0.5?'\u00BD week for 1 person':p===1?'1 person \u00b7 1 week':`${pfmt(p)} people \u00b7 1 week`;
+  return `${ts} portions \u00b7 ${who}`;
+}
+
+
+// ─── PLAN FEATURE ────────────────────────────────────────────────
+
+let plan={
+  breakfast:{meal:null,people:1},
+  lunch:{meal:null,people:1},
+  dinner:{meal:null,people:1}
+};
+let pickingSlot=null;
+let _listText='';
+
+const SLOT_LABELS={breakfast:'Breakfast',lunch:'Lunch',dinner:'Dinner'};
+const SLOT_SUBS={
+  breakfast:'Start the day right',
+  lunch:'Midday fuel',
+  dinner:'Evening meal'
+};
+
+// ── Render the plan screen ────────────────────────────────────────
+function renderPlan(){
+  var wrap=document.getElementById('planSlots');
+  if(!wrap){console.error('planSlots not found');return;}
+  while(wrap.firstChild)wrap.removeChild(wrap.firstChild);
+
+  ['breakfast','lunch','dinner'].forEach(function(sl){
+    var s=plan[sl];
+    var meal=s.meal?MEALS.find(function(m){return m.id===s.meal;}):null;
+    var filled=!!meal;
+
+    var card=document.createElement('div');
+    card.className='plan-slot';
+
+    // ── clickable header ──
+    var head=document.createElement('div');
+    head.className='slot-head';
+    (function(slot){head.addEventListener('click',function(){openPicker(slot);});})(sl);
+
+    // icon
+    var iconBox=document.createElement('div');
+    iconBox.className='slot-icon-wrap';
+    if(filled){
+      iconBox.style.cssText='background:linear-gradient(135deg,'+meal.c1+','+meal.c2+');border:0.5px solid rgba(255,255,255,0.14);box-shadow:0 3px 14px rgba(0,0,0,0.4);';
+      iconBox.innerHTML=getMealIcon(meal.id);
+    }else{
+      iconBox.style.cssText='background:var(--agw);border:1px dashed var(--ab);';
+      iconBox.innerHTML='<svg viewBox="0 0 80 80" fill="none" stroke="var(--am)" stroke-width="3.5" stroke-linecap="round"><line x1="40" y1="20" x2="40" y2="60"/><line x1="20" y1="40" x2="60" y2="40"/></svg>';
+    }
+    head.appendChild(iconBox);
+
+    // text
+    var txt=document.createElement('div');
+    txt.style.cssText='flex:1;min-width:0;';
+    var lbl=document.createElement('div');lbl.className='slot-label';lbl.textContent=SLOT_LABELS[sl];txt.appendChild(lbl);
+    if(filled){
+      var nm=document.createElement('div');nm.className='slot-name';nm.textContent=meal.nm;txt.appendChild(nm);
+      var meta=document.createElement('div');meta.className='slot-meta';
+      meta.textContent=meal.mac.k+' kcal · '+meal.mac.p+'g P · '+meal.mac.f+'g fibre';
+      txt.appendChild(meta);
+    }else{
+      var main=document.createElement('div');main.className='slot-empty-main';main.textContent='Tap to select a '+sl;txt.appendChild(main);
+      var sub=document.createElement('div');sub.className='slot-empty-sub';sub.textContent=SLOT_SUBS[sl];txt.appendChild(sub);
+    }
+    head.appendChild(txt);
+
+    var chev=document.createElement('div');chev.className='slot-chev';chev.innerHTML=filled?'&#9998;':'&#8250;';
+    head.appendChild(chev);
+    card.appendChild(head);
+
+    // ── people row ──
+    if(filled){
+      var ppRow=document.createElement('div');ppRow.className='slot-people';
+      var ppL=document.createElement('div');
+      var ppLbl=document.createElement('div');ppLbl.className='slot-pp-lbl';ppLbl.textContent='People';
+      var ppSub=document.createElement('div');ppSub.className='slot-pp-sub';ppSub.id='ppSub-'+sl;ppSub.textContent=pstr(s.people);
+      ppL.appendChild(ppLbl);ppL.appendChild(ppSub);ppRow.appendChild(ppL);
+
+      var ppR=document.createElement('div');ppR.style.cssText='display:flex;align-items:center;gap:10px;';
+      var rmBtn=document.createElement('button');rmBtn.className='slot-clear';rmBtn.textContent='Remove';
+      (function(slot){rmBtn.addEventListener('click',function(e){e.stopPropagation();clearSlot(slot);});})(sl);
+      ppR.appendChild(rmBtn);
+
+      var step=document.createElement('div');step.className='slot-stepper';
+      var mBtn=document.createElement('button');mBtn.className='sp-btn';mBtn.innerHTML='&#8722;';
+      (function(slot){mBtn.addEventListener('click',function(e){e.stopPropagation();slotAdj(slot,-0.5);});})(sl);
+      var vDiv=document.createElement('div');vDiv.className='sp-val';vDiv.id='spVal-'+sl;vDiv.textContent=pfmt(s.people);
+      var pBtn=document.createElement('button');pBtn.className='sp-btn';pBtn.textContent='+';
+      (function(slot){pBtn.addEventListener('click',function(e){e.stopPropagation();slotAdj(slot,0.5);});})(sl);
+      step.appendChild(mBtn);step.appendChild(vDiv);step.appendChild(pBtn);
+      ppR.appendChild(step);ppRow.appendChild(ppR);
+      card.appendChild(ppRow);
+    }
+
+    wrap.appendChild(card);
+  });
+
+  var btn=document.getElementById('genBtn');
+  if(btn){
+    var any=Object.values(plan).some(function(s){return s.meal;});
+    btn.style.opacity=any?'1':'0.38';
+    btn.style.pointerEvents=any?'auto':'none';
+  }
+}
+
+function clearSlot(sl){
+  plan[sl].meal=null;
+  plan[sl].people=1;
+  renderPlan();
+}
+
+function slotAdj(sl,d){
+  const s=plan[sl];
+  s.people=Math.max(0.5,Math.min(10,Math.round((s.people+d)*2)/2));
+  renderPlan();
+}
+
+// ── Meal picker ───────────────────────────────────────────────────
+function openPicker(slot){
+  pickingSlot=slot;
+  const head=document.getElementById('pickerHead');
+  if(head)head.textContent='Pick '+SLOT_LABELS[slot];
+  const meals=MEALS.filter(m=>m.cat===slot);
+  const grid=document.getElementById('pickerGrid');
+  if(!grid)return;
+  grid.innerHTML=meals.map(m=>{
+    const sel=plan[slot].meal===m.id;
+    const icsvg=getMealIcon(m.id);
+    return `<div class="pk-card${sel?' selected':''}" onclick="pickMeal('${m.id}')">
+<div class="pk-icon" style="opacity:${sel?1:0.7}">${icsvg}</div>
+<div>
+<div class="pk-nm">${m.nm}</div>
+<div class="pk-kcal">${m.mac.k} kcal · ${m.mac.p}g P</div>
+</div>
+</div>`;
+  }).join('');
+  document.getElementById('pickerOv').classList.add('on');
+  document.body.style.overflow='hidden';
+}
+
+function pickMeal(id){
+  if(pickingSlot)plan[pickingSlot].meal=id;
+  document.getElementById('pickerOv').classList.remove('on');
+  document.body.style.overflow='';
+  pickingSlot=null;
+  renderPlan();
+}
+
+function closePicker(e){
+  if(e&&e.target!==document.getElementById('pickerOv'))return;
+  document.getElementById('pickerOv').classList.remove('on');
+  document.body.style.overflow='';
+  pickingSlot=null;
+}
+
+// ── Ingredient category helper ────────────────────────────────────
+function ingCategory(name){
+  const n=name.toLowerCase();
+  if(/chicken|beef|mince|lamb|steak/.test(n))return'🥩 Meat';
+  if(/yogurt|kefir|cheese|egg|milk|butter/.test(n))return'🥛 Dairy & Eggs';
+  if(/rice|pasta|oat|lentil|noodle|bread|wrap|flour|weetabix|granola/.test(n))return'🌾 Dry Goods';
+  if(/tinned|tin|cans?|stock|paste|sauce|coconut milk/.test(n))return'🥫 Cans & Jars';
+  if(/onion|garlic|ginger|carrot|celery|pepper|courgette|cucumber|tomato|lettuce|spinach|berry|berries|lemon|lime|parsley|coriander|basil|mint|parsley|banana|sweet potato|aubergine|cherry|romaine|spring onion|edamame/.test(n))return'🥦 Fresh Produce';
+  if(/oil|soy sauce|oyster|teriyaki|fish sauce|mustard|worcestershire|honey|harissa/.test(n))return'🫙 Sauces & Oils';
+  if(/cumin|paprika|turmeric|chilli|oregano|thyme|cinnamon|garam|masala|spice|herb|ginger powder|garlic powder|sesame seed/.test(n))return'🌶️ Herbs & Spices';
+  return'🛒 Other';
+}
+
+// ── Generate and show shopping list ──────────────────────────────
+function openList(){
+  const slots=['breakfast','lunch','dinner'];
+  const sections=[];
+  let textOut='SHOPPING LIST\n\n';
+
+  slots.forEach(sl=>{
+    const s=plan[sl];
+    if(!s.meal)return;
+    const meal=MEALS.find(m=>m.id===s.meal);
+    if(!meal)return;
+    const scaledIngs=meal.ings.map(i=>({
+      name:i.n,
+      amount:i.a*s.people,
+      unit:i.u,
+      where:i.w||'',
+      display:fmt2(i.a,i.u,s.people)
+    }));
+    sections.push({label:SLOT_LABELS[sl]+': '+meal.nm,ings:scaledIngs,meal:meal});
+  });
+
+  if(!sections.length)return;
+
+  // Build consolidated list grouped by category
+  // First collect all items tagged by category
+  const catMap={};
+  sections.forEach(sec=>{
+    sec.ings.forEach(ing=>{
+      const cat=ingCategory(ing.name);
+      if(!catMap[cat])catMap[cat]=[];
+      // Merge same ingredient across meals
+      const existing=catMap[cat].find(x=>x.name.toLowerCase()===ing.name.toLowerCase()&&x.unit===ing.unit);
+      if(existing){
+        existing.amount+=ing.amount;
+        existing.display=fmt2Raw(existing.amount,ing.unit);
+        existing.meals=existing.meals+', '+sec.meal.nm.split(' ')[0];
+      } else {
+        catMap[cat].push({...ing,meals:sec.meal.nm.split(' ')[0]});
+      }
+    });
+  });
+
+  // Ordered categories
+  const catOrder=['🥩 Meat','🥛 Dairy & Eggs','🌾 Dry Goods','🥫 Cans & Jars','🥦 Fresh Produce','🫙 Sauces & Oils','🌶️ Herbs & Spices','🛒 Other'];
+  const scroll=document.getElementById('listScroll');
+  let html='';
+
+  // Summary header
+  const mealNames=sections.map(s=>s.label).join(' · ');
+  html+=`<div style="padding:6px 0 14px;font-size:12px;color:var(--t3);line-height:1.6;">${mealNames}</div>`;
+  textOut+=mealNames+'\n\n';
+
+  catOrder.forEach(cat=>{
+    const items=catMap[cat];
+    if(!items||!items.length)return;
+    html+=`<div class="list-meal-head">${cat}</div>`;
+    textOut+='\n'+cat.replace(/[^\w\s]/g,'').trim().toUpperCase()+'\n';
+    items.forEach(item=>{
+      html+=`<div class="list-item-row">
+<div class="li-name">${item.name}${item.where?`<div class="li-where">${item.where}</div>`:''}</div>
+<div class="li-amt">${item.display}</div>
+</div>`;
+      textOut+=`• ${item.name}: ${item.display}\n`;
+    });
+  });
+
+  html+=`<div class="list-notice">Quantities scaled for your selected people counts</div>`;
+  scroll.innerHTML=html;
+
+  _listText=textOut;
+  const copyBtn=document.getElementById('copyBtn');
+  if(copyBtn)copyBtn.classList.remove('done');
+  if(copyBtn)copyBtn.textContent='Copy';
+
+  document.getElementById('listOv').classList.add('on');
+  document.body.style.overflow='hidden';
+}
+
+function fmt2(a,u,ppl){return fmt2Raw(a*ppl,u);}
+function fmt2Raw(v,u){
+  const NON=['tbsp','tsp','scoops','bunch','bunches','cans','biscuits','count'];
+  if(NON.includes(u)){const d=v%1===0?v:parseFloat(v.toFixed(1));return u==='count'?String(d):`${d} ${u}`;}
+  if(unit==='metric'){
+    if(u==='g'&&v>=1000)return `${parseFloat((v/1000).toFixed(1))} kg`;
+    if(u==='ml'&&v>=1000)return `${parseFloat((v/1000).toFixed(1))} l`;
+    return `${v%1===0?v:parseFloat(v.toFixed(1))} ${u}`;
+  }
+  if(u==='g'){return v>=453.6?`${(v/453.6).toFixed(1)} lb`:`${Math.round(v/28.35)} oz`;}
+  if(u==='kg')return `${(v*2.205).toFixed(2)} lb`;
+  if(u==='ml'){return v>=284?`${(v/568.3).toFixed(1)} pt`:`${Math.round(v/29.57)} fl oz`;}
+  if(u==='l')return `${(v*1.76).toFixed(1)} pt`;
+  const d=v%1===0?v:parseFloat(v.toFixed(1));return `${d} ${u}`;
+}
+
+function closeList(e){
+  if(e&&e.target!==document.getElementById('listOv'))return;
+  document.getElementById('listOv').classList.remove('on');
+  document.body.style.overflow='';
+}
+
+function copyList(){
+  navigator.clipboard.writeText(_listText).then(()=>{
+    const btn=document.getElementById('copyBtn');
+    if(btn){btn.textContent='Copied ✓';btn.classList.add('done');}
+    setTimeout(()=>{
+      if(btn){btn.textContent='Copy';btn.classList.remove('done');}
+    },2500);
+  }).catch(()=>{
+    // Fallback for older browsers
+    const ta=document.createElement('textarea');
+    ta.value=_listText;ta.style.position='fixed';ta.style.opacity='0';
+    document.body.appendChild(ta);ta.select();document.execCommand('copy');
+    document.body.removeChild(ta);
+    const btn=document.getElementById('copyBtn');
+    if(btn){btn.textContent='Copied ✓';btn.classList.add('done');}
+    setTimeout(()=>{if(btn){btn.textContent='Copy';btn.classList.remove('done');}},2500);
+  });
+}
+
+// ─── GRID ─────────────────────────────────────────────────────────
+function renderGrid(){
+  const list=cat==='all'?MEALS:MEALS.filter(m=>m.cat===cat);
+  const titles={all:'All meals',breakfast:'Breakfast',lunch:'Lunch',dinner:'Dinner'};
+  document.getElementById('secTitle').textContent=titles[cat];
+  document.getElementById('secCt').textContent=`${list.length} meal${list.length!==1?'s':''}`;
+  const grid=document.getElementById('grid');
+  grid.innerHTML=list.map(m=>{
+
+    return `<div class="card" onclick="openMeal('${m.id}')">
+<div class="c-glass">
+<div class="c-hero" id="ch-${m.id}">
+<div class="c-icon">${getMealIcon(m.id)}</div>
+</div>
+<div class="c-body">
+<div class="c-cat">${CL[m.cat]}</div>
+<div class="mbar"></div>
+<div class="c-nm">${m.nm}</div>
+<div class="c-chips">
+<span class="chip chip-k">${m.mac.k} kcal</span>
+<span class="chip chip-p">${m.mac.p}g protein</span>
+<span class="chip chip-f">${m.mac.f}g fibre</span>
+</div>
+<div class="c-tags">${m.tags.slice(0,2).map(t=>`<span class="ctag">${t}</span>`).join('')}</div>
+</div></div></div>`;
+  }).join('');
+  // Icons are inline SVG — no loading needed
+}
+
+// ─── MODAL ────────────────────────────────────────────────────────
+function openMeal(id){
+  active=MEALS.find(m=>m.id===id);
+  if(!active)return;
+  people=1;
+  buildModal();
+  document.getElementById('ov').classList.add('on');
+  document.body.style.overflow='hidden';
+}
+function buildModal(){
+  const m=active;
+  const ings=m.ings.map(i=>`<div class="ing-r">
+<div class="ing-n">${i.n}${i.w?`<div class="ing-w">${i.w}</div>`:''}</div>
+<div class="ing-a">${fmt(i.a,i.u)}</div></div>`).join('');
+  const steps=m.steps.map((s,i)=>`<div class="step-r">
+<div class="step-n">${i+1}</div>
+<div><div class="step-t">${s.t}</div><div class="step-x">${s.x}</div></div>
+</div>`).join('');
+  const cachedImg=false; // images loaded directly, not cached via fetch
+  document.getElementById('msc').innerHTML=`
+<div class="m-hero${cachedImg?' loaded':''}" id="mh-${m.id}">
+<div class="m-hero-bg" style="background:linear-gradient(145deg,${m.c1},${m.c2})"></div>
+<!-- no external image —— SVG icon used instead -->
+<div class="m-hero-glass"></div>
+<div class="m-hero-icon">${getMealIcon(m.id)}</div>
+<button class="m-close" onclick="closeM()">✕</button>
+<div class="m-hero-info">
+<div class="m-hcat">${CL[m.cat]}${m.prep?' \u00b7 '+m.prep:''}</div>
+<div class="m-hname">${m.nm}</div>
+</div>
+</div>
+<div class="m-macs">
+<div class="mmac mac-k"><div class="mmac-v">${m.mac.k}</div><div class="mmac-l">kcal</div></div>
+<div class="mmac mac-p"><div class="mmac-v">${m.mac.p}g</div><div class="mmac-l">Protein</div></div>
+<div class="mmac mac-c"><div class="mmac-v">${m.mac.c}g</div><div class="mmac-l">Carbs</div></div>
+<div class="mmac mac-fi"><div class="mmac-v">${m.mac.f}g</div><div class="mmac-l">Fibre</div></div>
+<div class="mmac mac-fa"><div class="mmac-v">${m.mac.fat}g</div><div class="mmac-l">Fat</div></div>
+</div>
+<div class="m-pp">
+<div>
+<div class="m-pp-lbl-main">People meal prepping for</div>
+<div class="m-pp-lbl-sub" id="ppStr">${pstr(people)}</div>
+</div>
+<div class="stepper">
+<button class="pp-btn" onclick="adj(-0.5)">−</button>
+<div class="pp-val" id="ppVal">${pfmt(people)}</div>
+<button class="pp-btn" onclick="adj(0.5)">+</button>
+</div>
+</div>
+<div class="leg">
+<div class="leg-i"><div class="leg-d" style="background:var(--pr)"></div>Protein</div>
+<div class="leg-i"><div class="leg-d" style="background:var(--ca)"></div>Carbs</div>
+<div class="leg-i"><div class="leg-d" style="background:var(--ft)"></div>Fat</div>
+<div class="leg-i"><div class="leg-d" style="background:var(--fb)"></div>Fibre</div>
+</div>
+<div class="sh">Ingredients</div>
+<div class="sh-note">For ${pfmt(people)} ${people===1?'person':'people'} \u00b7 1 week \u00b7 ${pstr(people)}</div>
+<div class="ing-list" id="ingList">${ings}</div>
+<div class="sh">Method</div>
+<div class="steps-list">${steps}</div>
+${m.notes?`<div class="m-notes">\ud83d\udca1 ${m.notes}</div>`:''}
+<div class="sh">Available at</div>
+<div class="shops">${m.shops.map(s=>`<span class="shop">${s}</span>`).join('')}</div>
+<div class="m-sp"></div>`;
+  // If modal is open and image already cached, inject it
+  if(cachedImg){
+    const mel=document.getElementById('mh-'+m.id);
+    if(mel){
+      const img=mel.querySelector('.m-hero-img');
+      if(img&&img.src){
+        img.onload=()=>mel.classList.add('loaded');
+        img.onerror=()=>{};
+      }
+    }
+  }
+}
+function adj(d){
+  var next=Math.max(0.5,Math.min(10,Math.round((people+d)*2)/2));
+  if(next===people){
+    var btn=d>0?document.querySelector('.stepper .pp-btn:last-child'):document.querySelector('.stepper .pp-btn:first-child');
+    if(btn){btn.style.opacity='0.3';setTimeout(function(){btn.style.opacity='';},300);}
+    return;
+  }
+  people=next;
+  var pv=document.getElementById('ppVal');
+  if(pv){pv.classList.remove('bump');void pv.offsetWidth;pv.classList.add('bump');pv.textContent=pfmt(people);}
+  var ps=document.getElementById('ppStr');
+  if(ps)ps.textContent=pstr(people);
+  var sh=document.getElementById('ingList');
+  if(sh&&active){
+    var h='';
+    active.ings.forEach(function(i){
+      h+='<div class="ing-r"><div class="ing-n">'+i.n+(i.w?'<div class="ing-w">'+i.w+'</div>':'')+'</div><div class="ing-a">'+fmt(i.a,i.u)+'</div></div>';
+    });
+    sh.innerHTML=h;
+  }
+}
+function closeM(e){
+  if(e&&e.target!==document.getElementById('ov'))return;
+  document.getElementById('ov').classList.remove('on');
+  document.body.style.overflow='';
+  active=null;
+}
+
+// ─── CONTROLS ─────────────────────────────────────────────────────
+function setUnit(u){
+  unit=u;
+  document.querySelectorAll('.seg-b').forEach((b,i)=>b.classList.toggle('on',(i===0&&u==='metric')||(i===1&&u==='imperial')));
+  if(active)buildModal();
+}
+function setCat(c){
+  cat=c;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.dataset.c===c));
+  const grid=document.getElementById('grid');
+  const secH=document.getElementById('secHdr');
+  const scrollArea=document.querySelector('.scroll');
+  const planScr=document.getElementById('planScr');
+  if(c==='plan'){
+    if(scrollArea)scrollArea.style.display='none';
+    if(planScr)planScr.style.display='flex';
+    renderPlan();
+  } else {
+    if(scrollArea)scrollArea.style.display='';
+    if(planScr)planScr.style.display='none';
+    renderGrid();
+  }
+}
+
+renderGrid();
+</script>
+</body>
+</html>
